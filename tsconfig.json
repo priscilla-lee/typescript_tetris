@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "outFile": "compiled.js"
+    },
+    "files": [
+        "customize.ts",
+        "game.ts",
+        "grid.ts",
+        "render.ts",
+        "tetris.ts",
+        "tetromino.ts"
+    ]
+}
