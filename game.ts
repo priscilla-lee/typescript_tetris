@@ -1,17 +1,24 @@
+enum Direction {
+	Up,
+	Down,
+	Left,
+	Right
+}
+
 /************************************************************************
 * GAME: game logic, loop, start, play, pause, etc
 ************************************************************************/
 class Game {
-	public started;
-	public loop;
-	public playing;
-	public randomPieces;
-	public current;
-	public held;
-	public limitHold;
-	public grid;
+	public started: boolean;
+	public loop: number;
+	public playing: boolean;
+	public randomPieces: RandomPieces;
+	public current: Tetromino;
+	public held: Tetromino;
+	public limitHold: boolean; // limit: can't swap twice in a row
+	public grid: Grid;
 
-	public constructor(grid) {
+	public constructor(grid: Grid) {
 		this.started = false;
 		this.loop = null;
 		this.playing = false;
@@ -22,27 +29,27 @@ class Game {
 		this.grid = grid;
 	}
 
-	public start() {
+	public start(): void {
 		this.started = true;
 		this._nextPiece();
 		this.play();
 	}
-	public play() {
+	public play(): void {
 		this.loop = setInterval(() => this.step(), delay);
 		this.playing = true;
 	}
-	public pause() {
+	public pause(): void {
 		clearInterval(this.loop);
 		this.playing = false;
 	}
-	public step() {
+	public step(): void {
 		//self.current.drawGhost();
 		render.drawTetromino(this.current); 
 		if (!this.current.fall()) this._nextPiece();	
 		render.next();
 	}
-	private _nextPiece() {
-		var next = this.randomPieces.getNext();
+	private _nextPiece(): void {
+		var next: string = this.randomPieces.getNext();
 		this.current = new Tetromino(next);
 		this.current.add(); 
 		render.drawTetromino(this.current); 
@@ -51,17 +58,17 @@ class Game {
 		//this.current.drawGhost();
 		render.drawTetromino(this.current); 
 	}
-	public move(dir) {
+	public move(dir: Direction): void {
 		this.current.move(dir);
 	}
-	public rotate() {
+	public rotate(): void {
 		this.current.rotate();
 	}
-	public drop() {
+	public drop(): void {
 		this.current.drop();
 		this._nextPiece();
 	}
-	public hold() {
+	public hold(): void {
 		//limit hold swaps
 		if (this.limitHold) return; 
 		else this.limitHold = true;
@@ -71,12 +78,11 @@ class Game {
 			this.current.remove(); 
 			render.eraseTetromino(this.current); 
 			//add & draw held
-			this.held.reset(); //Position();
+			this.held.reset();
 			this.held.add(); 
-			//this.held.resetGhost(); 
 			render.drawTetromino(this.held); 
 			//swap
-			var temp = this.held; 
+			var temp: Tetromino = this.held; 
 			this.held = this.current;
 			this.current = temp;
 		} else {
@@ -85,13 +91,13 @@ class Game {
 			render.eraseTetromino(this.current); 
 			this.held = this.current;
 			//draw from next list
-			var next = this.randomPieces.getNext();
+			var next: string = this.randomPieces.getNext();
 			this.current = new Tetromino(next);
 			this.current.add(); 
 			render.drawTetromino(this.current); 
 		}
 	}
-	public keyPressed() {
+	public keyPressed(): void {
 		render.next(); 
 		render.hold();  
 		//this.current.drawGhost();
@@ -103,46 +109,34 @@ class Game {
 * RANDOM PIECE GENERATOR: 7 bag method
 ************************************************************************/
 class RandomPieces {
-	private _list;
-	private _bag;
+	private _pieces: string[];
+	private _bag: string[];
 	public constructor() {
-		this._bag = new Bag();
-		this._list = this._bag.batch();
-	}
-	public getList() {
-		return this._list;
-	}
-	public getNext(number=1) {
-		if (this._list.length < Bag.MAX_CAPACITY ) //maintain 7 random pieces
-			this._list.push(this._bag.select());
-		var next = this._list.shift(); //removes first and shifts everything down
-		return next;
-	}
-}
+		this._bag = [];
+		this._pieces = [];
 
-class Bag {
-	public static MAX_CAPACITY = 7;
-	private _pieces;
-	public constructor() {
-		this._replenish();
-	} 
-	public select() {
-		if (this._pieces.length == 0) {
-			this._replenish();
+		// fill list of pieces
+		for (var i = 0; i < NUM_NEXT_PIECES; i++) {
+			this._pieces.push(this._select());
 		}
-		var randomIndex = Math.floor(Math.random() * this._pieces.length);
-		var selected = this._pieces[randomIndex];
-		this._pieces.splice(randomIndex, 1);
+	}
+	private _select(): string { // pieces one at a time from bag
+		if (this._bag.length == 0) {
+			this._bag = ["I", "J", "L", "O", "S", "T", "Z"];
+		}
+		var randomIndex: number = Math.floor(Math.random() * this._bag.length);
+		var selected: string = this._bag[randomIndex];
+		this._bag.splice(randomIndex, 1);
 		return selected;
 	}
-	private _replenish() {
-		this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+	public getNext(): string { 
+		// remove first piece from list, shift everything down, add a new piece (maintain number)
+		var next: string = this._pieces.shift();
+		this._pieces.push(this._select());
+		return next;
 	}
-	public batch() { //returns an array (a "batch") of 7 pieces
-		var batch = [];
-		for (var i = 0; i < 7; i++) 
-			batch.push(this.select());
-		return batch;
+	public getList(): string[] {
+		return this._pieces;		
 	}
 }
 

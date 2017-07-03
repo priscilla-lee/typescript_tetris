@@ -1,15 +1,17 @@
-var cols = 10; //width
-var rows = 20; //height
-var unit = 20; //size of block on grid
+var cols: number = 10; //width
+var rows: number = 20; //height
+var unit: number = 20; //size of block on grid
 
-var NUM_TOP_ROWS = 5; //invisible rows at top, not shown
+var NUM_TOP_ROWS: number = 5; //invisible rows at top, not shown
+var NUM_NEXT_PIECES: number = 5; //must be less than 7
 
-var scale = {
+var scale: any = {
 	board: {
 		x: unit*4, y: 0,
 		size: unit, //size of block 
 		weight: unit/10, //line weight of block
 		outer: unit/5, mid: unit/7, inner: unit*0.8, ctn: unit/5 //bezel thicknesses
+		// "ctn" stands for container
 	},
 	hold: {
 		x: unit*0.5, y: unit*2,
@@ -38,110 +40,114 @@ var scale = {
 };
 
 class Dimensions {
-	public static next() {
-		var box = scale["box_md"].box;
+	public static next(): any{
+		var box: number = scale["box_md"].box;
 
-		var n = scale.next;
+		var n: any= scale.next;
 		n.X = n.outer + n.mid + n.inner + n.ctn;
 		n.Y = n.outer + n.mid + n.inner + n.ctn;
 
-		var o = scale["box_sm"].offset;
+		var o: number = scale["box_sm"].offset;
 
-		var h = box*5 + 2*(n.Y) + o;
-		var w = box + 2*(n.X);
+		var h: number = box*NUM_NEXT_PIECES + 2*(n.Y) + o;
+		var w: number = box + 2*(n.X);
 
 		return {height: h, width: w};
 	}
-	public static hold() {
-		var box = scale["box_md"].box;
+	public static hold(): any {
+		var box: number = scale["box_md"].box;
 
-		var h = scale.hold;
+		var h: any = scale.hold;
 		h.X = h.outer + h.mid + h.inner + h.ctn;
 		h.Y = h.outer + h.mid + h.inner + h.ctn;
 
-		var hei = box + 2*(h.Y);
-		var w = box + 2*(h.X);
+		var hei: number = box + 2*(h.Y);
+		var w: number = box + 2*(h.X);
 
 		return {height: hei, width: w};
 	}
-	public static board() {
-		var b = scale.board;
+	public static board(): any {
+		var b: any = scale.board;
 		b.X = b.outer + b.mid + b.inner + b.ctn;
 		b.Y = b.outer + b.mid + b.inner + b.ctn;
 
-		var h = rows*b.size + 2*(b.Y);
-		var w =  cols*b.size + 2*(b.X);
+		var h: number = rows*b.size + 2*(b.Y);
+		var w: number =  cols*b.size + 2*(b.X);
 
 		return {height: h, width: w};
 	}
 }
 
 class Render {
-	public element;
-	public rows;
-	public cols;
-	public constructor(canvas) {//, rows, cols) {
+	public element: any;
+	public rows: number;
+	public cols: number;
+	public constructor(canvas: any) {//, rows, cols) {
 		this.element = canvas;
 		// this.rows = rows;
 		// this.cols = cols;
 	}
-	public next() {
-		var box = scale["box_md"].box;
+	public next(): void {
+		var box: number = scale["box_md"].box;
 
-		var n = scale.next;
+		var n: any = scale.next;
 		n.X = n.outer + n.mid + n.inner + n.ctn;
 		n.Y = n.outer + n.mid + n.inner + n.ctn;
 
-		var o = scale["box_sm"].offset;
+		var o: any = scale["box_sm"].offset;
 
-		var height = box*5 + 2*(n.Y) + o;
-		var width = box + 2*(n.X);
+		var height: number = box*NUM_NEXT_PIECES + 2*(n.Y) + o;
+		var width: number = box + 2*(n.X);
 
 		n.X += n.x; n.Y += n.y;
 
-		var array = game.randomPieces.getList(); 
+		var array: string[] = game.randomPieces.getList();
 
 		// "all" function
 		CanvasUtil.bezel(this.element, "next", width, height);
 		array = game.randomPieces.getList(); //update
 		//draw 1 medium box
-		var boxDraw = new BoxDraw(this.element, "box_md", n.X+0, n.Y, array[0]);
+		var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", n.X+0, n.Y, array[0]);
 		boxDraw.box();
-		//draw 4 smaller boxes
-		for (var i = 1; i < 5; i++) {
-			var boxDraw = new BoxDraw(this.element, "box_sm", n.X+o+0, n.Y+2*o+box*i, array[i]);
+		//draw smaller boxes (skip the first one)
+		for (var i = 1; i < array.length; i++) {
+			var boxDraw = new BoxDraw(this.element, 
+				"box_sm", 
+				n.X+o+0, 
+				n.Y+2*o+box*i, 
+				array[i]);
 			boxDraw.box();
 		}
 	}
-	public hold() {
-		var box = scale["box_md"].box;
+	public hold(): void {
+		var box: number = scale["box_md"].box;
 
-		var h = scale.hold;
+		var h: any = scale.hold;
 		h.X = h.outer + h.mid + h.inner + h.ctn;
 		h.Y = h.outer + h.mid + h.inner + h.ctn;
 
-		var height = box + 2*(h.Y);
-		var width = box + 2*(h.X);
+		var height: number = box + 2*(h.Y);
+		var width: number = box + 2*(h.X);
 
 		h.X += h.x; h.Y += h.y;
 
 		// "all" function
 		CanvasUtil.bezel(this.element, "hold", width, height);
 		if (game.held) {
-			var boxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, game.held.shape);
+			var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, game.held.shape);
 			boxDraw.box();			
 		} else {
-			var boxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, ".");
+			var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, ".");
 			boxDraw.empty();
 		}
 	}
-	public board() {
-		var b = scale.board;
+	public board(): void {
+		var b: any = scale.board;
 		b.X = b.outer + b.mid + b.inner + b.ctn;
 		b.Y = b.outer + b.mid + b.inner + b.ctn;
 
-		var height = rows*b.size + 2*(b.Y);
-		var width =  cols*b.size + 2*(b.X);
+		var height: number = rows*b.size + 2*(b.Y);
+		var width: number =  cols*b.size + 2*(b.X);
 
 		b.X += b.x; b.Y += b.y;
 
@@ -152,30 +158,30 @@ class Render {
 				this.block(r, c, grid[r][c]);
 		}	
 	}
-	public block(r, c, shape) {
+	public block(r: number, c: number, shape: string): void {
 		// duplicate beginning
-		var b = scale.board;
+		var b: any = scale.board;
 		b.X = b.outer + b.mid + b.inner + b.ctn;
 		b.Y = b.outer + b.mid + b.inner + b.ctn;
 
-		var height = rows*b.size + 2*(b.Y);
-		var width =  cols*b.size + 2*(b.X);
+		var height: number = rows*b.size + 2*(b.Y);
+		var width: number =  cols*b.size + 2*(b.X);
 
 		b.X += b.x; b.Y += b.y;
 		// duplicate end
 
-		var size = scale.board.size;
-		var top = NUM_TOP_ROWS*size;
+		var size: number = scale.board.size;
+		var top: number = NUM_TOP_ROWS*size;
 		CanvasUtil.square(this.element, "board", c*size+b.X, r*size+b.Y-top, shape);
 	}
-	public emptyFrame() {}
-	public clearBoard() {}
-	public clearHold() {}
-	public clearNext() {}
-	public updateNext(tetrominos) {}
-	public updateHold(tetromino) {}
-	public updateBoard(grid) {}
-	public eraseTetromino(tetromino: Tetromino) {
+	public emptyFrame(): void {}
+	public clearBoard(): void {}
+	public clearHold(): void {}
+	public clearNext(): void {}
+	public updateNext(tetrominos: Tetromino[]): void {}
+	public updateHold(tetromino: Tetromino): void {}
+	public updateBoard(grid: Grid): void {}
+	public eraseTetromino(tetromino: Tetromino): void {
 		for (var a = 0; a < 5; a++) {
 			for (var i in tetromino.blocks) {
 				var block = tetromino.blocks[i];
@@ -186,25 +192,25 @@ class Render {
 		} //erase 5 times to eliminate blur trails
 		render._eraseGhost(tetromino);
 	}
-	public drawTetromino(tetromino: Tetromino) {
+	public drawTetromino(tetromino: Tetromino): void {
 		render._drawGhost(tetromino);
 		for (var i in tetromino.blocks) {
 			var block = tetromino.blocks[i];
 			if (block.r >= NUM_TOP_ROWS) {
-				render.block(block.r, block.c, block.T.shape);
+				render.block(block.r, block.c, tetromino.shape); //block.T.shape);
 			}
 		}
 	}
-	private _eraseGhost(tetromino: Tetromino) {
-		var ghostBlocks = tetromino.getGhost().blocks;
+	private _eraseGhost(tetromino: Tetromino): void {
+		var ghostBlocks: Block[] = tetromino.getGhost().blocks;
 		for (var i in ghostBlocks) {
 			var g = ghostBlocks[i]
 			render.block(g.r, g.c, "."); 
 		}
 
 	}
-	private _drawGhost(tetromino: Tetromino) {
-		var ghostBlocks = tetromino.getGhost().blocks;
+	private _drawGhost(tetromino: Tetromino): void {
+		var ghostBlocks: Block[] = tetromino.getGhost().blocks;
 		for (var i in ghostBlocks) {
 			var g = ghostBlocks[i];
 			render.block(g.r, g.c, "ghost");
@@ -217,7 +223,7 @@ class Render {
 * CanvasUtil: (rendering) set board canvas w x h, draw block & board
 ************************************************************************/
 class CanvasUtil {
-	public static rect(element, x, y, w, h, weight, fill, line) {
+	public static rect(element: any, x: number, y: number, w: number, h: number, weight: number, fill: string, line: string): void {
 		var ctx= element.getContext("2d");
 			ctx.beginPath();
 			ctx.fillStyle = fill;
@@ -227,15 +233,15 @@ class CanvasUtil {
 			ctx.rect(x, y, w, h);
 			if (weight != 0) ctx.stroke();
 	}
-	public static square(element, scal, x, y, shape) {
-		var size = scale[scal].size;
-		var weight = scale[scal].weight;
+	public static square(element: any, scal: string, x: number, y: number, shape: string): void {
+		var size: number = scale[scal].size;
+		var weight: number = scale[scal].weight;
 
-		var otln = color[shape].outline;
-		var fill = color[shape].fill;
-		var shd = color[shape].shade;
-		var hlgt = color[shape].highlight;
-		var twkl = color[shape].twinkle;
+		var otln: string = color[shape].outline;
+		var fill: string = color[shape].fill;
+		var shd: string = color[shape].shade;
+		var hlgt: string = color[shape].highlight;
+		var twkl: string = color[shape].twinkle;
 
 		//outline
 		this.rect(element, x, y, size, size, 0, otln, otln);
@@ -246,11 +252,11 @@ class CanvasUtil {
 		//twinkle
 		this.rect(element, x+(size*0.1), y+(size*0.1), size*0.1, size*0.1, 0, twkl, twkl);
 	}
-	public static squareImage(element, img, x, y, w, h) {
+	public static squareImage(element: any, img: string, x: number, y: number, w: number, h: number): void {
 	    var ctx = element.getContext("2d");
 	   		ctx.drawImage(img,10,10,10,10);
 	}
-	public static circle(element, x, y, r, fill, line) {
+	public static circle(element: any, x: number, y: number, r: number, fill: string, line: string): void {
 		var ctx = element.getContext("2d");
 			ctx.beginPath();
 			ctx.fillStyle = fill;
@@ -259,15 +265,15 @@ class CanvasUtil {
 			ctx.fill();
 			ctx.stroke();
 	}
-	public static box(element, scal, x, y) {
-		var size = scale[scal].box;
-		var weight = scale[scal].weight;
-		var fill = color["."].fill;
+	public static box(element: any, scal: string, x: number, y: number): void {
+		var size: number = scale[scal].box;
+		var weight: number = scale[scal].weight;
+		var fill: string = color["."].fill;
 		// this.rect(loc, x, y, size, size, weight, fill, "black");
 		this.roundRect(element, x, y, size, size, unit/3, "black");
 		this.roundRect(element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, unit/4, fill);
 	}
-	public static roundRect(element, x, y, w, h, r, color) {
+	public static roundRect(element: any, x: number, y: number, w: number, h: number, r: number, color: string): void {
 		var ctx = element.getContext("2d");
 			ctx.beginPath();
 			ctx.fillStyle = color;
@@ -288,22 +294,22 @@ class CanvasUtil {
 			ctx.fill();    
 			// ctx.stroke();  
 	}
-	public static bezel(element, loc, w, h) {
+	public static bezel(element: any, loc: string, w: number, h: number): void {
 		// var w = loc.width;
 		// var h = loc.height;
 
-		var x = scale[loc].x;
-		var y = scale[loc].y;		
+		var x: number = scale[loc].x;
+		var y: number = scale[loc].y;		
 
-		var otr = scale[loc].outer;
-		var mid = scale[loc].mid;
-		var inr = scale[loc].inner;
-		var ctn = scale[loc].ctn;
+		var otr: number = scale[loc].outer;
+		var mid: number = scale[loc].mid;
+		var inr: number = scale[loc].inner;
+		var ctn: number = scale[loc].ctn;
 
-		var o = otr;
-		var m = otr + mid;
-		var i = otr + mid + inr;
-		var c = otr + mid + inr + ctn;
+		var o: number = otr;
+		var m: number = otr + mid;
+		var i: number = otr + mid + inr;
+		var c: number = otr + mid + inr + ctn;
 
 		if (otr != 0) this.roundRect(element, x+0, y+0, w, h, unit*0.9, "#666"); //outer
 		if (mid != 0) this.roundRect(element, x+o, y+o, w-(o*2), h-(o*2), unit*0.8, "#f9f9f9"); //mid
@@ -314,14 +320,14 @@ class CanvasUtil {
 }
 
 class BoxDraw {
-	public element;
-	public scal
-	public x;
-	public y;
-	private _shape;
-	public dimensions;
+	public element: any;
+	public scal: string;
+	public x: number;
+	public y: number;
+	private _shape: string;
+	public dimensions: any;
 
-	public constructor(element, scal, x, y, shape) {
+	public constructor(element: any, scal: string, x: number, y: number, shape: string) {
 		this.element = element;
 		this.scal = scal;
 		this.x = x;
@@ -332,19 +338,19 @@ class BoxDraw {
 			S: {w: 3, h: 2}, T: {w: 3, h: 2}, Z: {w: 3, h: 2}
 		};
 	}
-	public box() {
+	public box():void {
 		this.empty();
 		this.shape();
 	}
-	public empty() {
+	public empty(): void {
 		CanvasUtil.box(this.element, this.scal, this.x, this.y);
 	}
-	public shape() {
+	public shape(): void {
 		var coords = this._getShapeCoords();
 		for (var i in coords)
 			CanvasUtil.square(this.element, this.scal, coords[i].X, coords[i].Y, this._shape);
 	}
-	private _getCenterCoord() {
+	private _getCenterCoord(): any {
 		var dim = this.dimensions[this._shape];
 		var box = scale[this.scal].box;
 		var size = scale[this.scal].size;
@@ -354,7 +360,7 @@ class BoxDraw {
 
 		return {X: xCenter, Y: yCenter};
 	}
-	private _getShapeCoords() {
+	private _getShapeCoords(): any {
 		var s = scale[this.scal].size;
 		var ctr = this._getCenterCoord();
 		var x = ctr.X, y = ctr.Y;

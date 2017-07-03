@@ -8,9 +8,9 @@ window.onkeydown = function(e) {
 		else game.play();
 	} //toggle play & pause
 	if (game.playing) { //only listen to keys if game is playing
-		if (e.keyCode == key.down) {game.move("down");}
-		if (e.keyCode == key.left) {game.move("left");}
-		if (e.keyCode == key.right) {game.move("right");}
+		if (e.keyCode == key.down) {game.move(Direction.Down);} 
+		if (e.keyCode == key.left) {game.move(Direction.Left);} 
+		if (e.keyCode == key.right) {game.move(Direction.Right);} 
 		if (e.keyCode == key.rotate) {game.rotate();}
 		if (e.keyCode == key.drop) {game.drop();}
 		if (e.keyCode == key.hold) {game.hold();}

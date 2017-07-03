@@ -3,31 +3,31 @@
 *			 contains, canMove, move, canRotate, rotate, add, & remove
 ************************************************************************/
 class Tetromino {
-	public shape;
-	public blocks;
-	public ghost;
-	public constructor(shape) {
+	public shape: string;
+	public blocks: Block[];
+	public ghost: Ghost;
+	public constructor(shape: string) {
 		this.shape = shape;
 		this.blocks = Tetromino.getBlocks(this.shape, this);
 		this.ghost = new Ghost(this);
 	}
-	public reset() {  //reset position
+	public reset(): void {  //reset position
 		this.blocks = Tetromino.getBlocks(this.shape, this);
 		this.ghost.reset(); 
 	}
-	public contains(r,c) {
-		//var inGhost = this.ghost.contains(r,c);
+	public contains(r: number, c: number): boolean {
+		var inGhost: boolean = this.ghost.contains(r,c);
 		for (var i in this.blocks) {
 			var inBlocks = this.blocks[i].equals(r,c);
-			if (inBlocks) return true;
+			if (inBlocks || inGhost) return true;
 		} return false;
 	}
-	private _canMove(dir) {
+	private _canMove(dir: Direction): boolean {
 		for (var i in this.blocks) {
 			if (!this.blocks[i].canMove(dir)) return false;
 		} return true;
 	}
-	public move(dir) {
+	public move(dir: Direction): boolean {
 		if (this._canMove(dir)) {
 			this.remove(); 
 			render.eraseTetromino(this); 
@@ -38,12 +38,12 @@ class Tetromino {
 		} //else console.log("can't move " + dir);
 		return false;
 	}
-	private _canRotate() {
+	private _canRotate(): boolean {
 		for (var b in this.blocks) {
 			if (!this.blocks[b].canRotate()) return false;
 		} return true;
 	}
-	public rotate() {
+	public rotate(): void {
 		if (this._canRotate()) {
 			this.remove(); 
 			render.eraseTetromino(this); 
@@ -52,33 +52,41 @@ class Tetromino {
 			render.drawTetromino(this); 
 		} //else console.log("can't rotate");
 	}
-	public add() {
+	public add(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
 			grid[b.r][b.c] = this.shape;
 		}
 	}
-	public remove() {
+	public remove(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
 			grid[b.r][b.c] = ".";
 		}
 	}
-	public fall() {
-		return this.move("down");
+	public fall(): boolean {
+		return this.move(Direction.Down);
 	}
-	public drop() {
+	public drop(): void {
 		while(this.fall());
 	}
-	public getGhost() {
+	public getGhost(): Ghost {
 		return this.ghost.calculate();
 	}
-	public static getBlocks(shape, T) {
+	public static getBlocks(shape: String, T: Tetromino): any {
 		//center, top position
-		var mid = Math.floor(cols/2)-1; //integer division, truncates
-		var shift = mid-1; //shifted for 4-wide or 3-wide tetrominos
-		var i=shift, j=shift, l=shift, s=shift, t=shift, z=shift, o=mid;
-		var t = NUM_TOP_ROWS -1; //shifted for top rows
+		var mid: number = Math.floor(cols/2)-1; //integer division, truncates
+		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos
+
+		var i: number = shift;
+		var j: number = shift; 
+		var l: number = shift; 
+		var s: number = shift; 
+		var t: number = shift; 
+		var z: number = shift; 
+		var o: number = mid;
+
+		var t: number = NUM_TOP_ROWS -1; //shifted for top rows
 
 		switch(shape) {
 			case 'I': return [new Block(0+t,i+1,T), new Block(0+t,i+0,T), new Block(0+t,i+2,T), new Block(0+t,i+3,T)];
@@ -93,30 +101,34 @@ class Tetromino {
 	}
 }
 
+/************************************************************************
+* GHOST: stores blocks, parent Tetromino, also contains methods
+*		 calculate, reset, and contains
+************************************************************************/
 class Ghost {
-	public blocks;
-	private _tetromino;
-	public constructor(tetromino) {
+	public blocks: Block[];
+	private _tetromino: Tetromino;
+	public constructor(tetromino: Tetromino) {
 		this._tetromino = tetromino;
 	}
-	public calculate() {
-		var ghost = []; //make deep copy of tetromino blocks
+	public calculate(): Ghost {
+		var ghost: Block[] = []; //make deep copy of tetromino blocks
 		for (var i in this._tetromino.blocks) { 
 			var b = this._tetromino.blocks[i];
 			ghost.push(new Block(b.r, b.c, this._tetromino));
 		} 
 		outer: while (true) { //hard drop
 			for (var i in ghost) //if all can fall, make all fall
-				if (!ghost[i].canMove("down")) break outer; 
+				if (!ghost[i].canMove(Direction.Down)) break outer; 
 			for (var i in ghost) ghost[i].r++; 				
 		} 
 		this.blocks = ghost; //update ghostBlocks
 		return this;
 	}
-	public reset() { //position
+	public reset(): void { //position
 		this.blocks = Tetromino.getBlocks("ghost", this._tetromino);
 	}
-	public contains(r,c) {
+	public contains(r: number, c: number): boolean {
 		for (var i in this.blocks) {
 			var inGhost = this.blocks[i].equals(r,c);
 			if (inGhost) return true;
@@ -126,45 +138,45 @@ class Ghost {
 
 /************************************************************************
 * BLOCK: stores row, col, parent Tetromino, also contains methods
-*		 equals, canMove, move, canRotate, rotate, draw, & erase
+*		 equals, canMove, move, canRotate, rotate
 ************************************************************************/
 class Block {
-	public r;
-	public c;
-	public T;
-	public constructor(row, col, T) {
+	public r: number;
+	public c: number;
+	private _T: Tetromino;
+	public constructor(row: number, col: number, T: Tetromino) {
 		this.r = row;
 		this.c = col;
-		this.T = T;
+		this._T = T;
 	}
-	public equals(r,c) {
+	public equals(r: number, c: number): boolean {
 		return (this.r==r && this.c==c);		
 	}
-	public canMove(dir) {
-		var newR = this.r;
-		var newC = this.c;
-		if (dir == "down") {newR = this.r+1;}
-		if (dir == "left") {newC = this.c-1;}
-		if (dir == "right") {newC = this.c+1;}	
-		return (this.T.contains(newR, newC) || this.T.ghost.contains(newR, newC) || grid.isValidEmpty(newR, newC));
+	public canMove(dir: Direction): boolean {
+		var newR: number = this.r;
+		var newC: number = this.c;
+		if (dir == Direction.Down) {newR = this.r+1;}
+		if (dir == Direction.Left) {newC = this.c-1;}
+		if (dir == Direction.Right) {newC = this.c+1;}	
+		return (this._T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
-	public move(dir) {
-		if (dir == "down") {this.r++;}
-		if (dir == "left") {this.c--;}
-		if (dir == "right") {this.c++;}
+	public move(dir: Direction): void {
+		if (dir == Direction.Down) {this.r++;}
+		if (dir == Direction.Left) {this.c--;}
+		if (dir == Direction.Right) {this.c++;}
 	}
-	public canRotate() {
-		if (this.T.shape == "O") return true; //squares don't rotate
-		var pivot = this.T.blocks[0]; //first block is pivot
-		var newR = (this.c - pivot.c) + pivot.r;    
-		var newC = -(this.r - pivot.r) + pivot.c;		
-		return (this.T.contains(newR, newC) || this.T.ghost.contains(newR, newC) || grid.isValidEmpty(newR, newC));
+	public canRotate(): boolean {
+		if (this._T.shape == "O") return true; //squares don't rotate
+		var pivot: Block = this._T.blocks[0]; //first block is pivot
+		var newR: number = (this.c - pivot.c) + pivot.r;    
+		var newC: number = -(this.r - pivot.r) + pivot.c;		
+		return (this._T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
-	public rotate() {
-		if (this.T.shape == "O") return; //squares don't rotate
-		var pivot = this.T.blocks[0]; //first block is pivot
-		var newC = -(this.r - pivot.r) + pivot.c;
-		var newR = (this.c - pivot.c) + pivot.r;    
+	public rotate(): void {
+		if (this._T.shape == "O") return; //squares don't rotate
+		var pivot: Block = this._T.blocks[0]; //first block is pivot
+		var newC: number = -(this.r - pivot.r) + pivot.c;
+		var newR: number = (this.c - pivot.c) + pivot.r;    
 		this.c = newC;
 		this.r = newR;
 	}
