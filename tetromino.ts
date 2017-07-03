@@ -75,7 +75,7 @@ class Tetromino {
 	public getGhost(): Ghost {
 		return this.ghost.calculate();
 	}
-	public static getBlocks(shape: Shape, T: Tetromino): any {
+	public static getBlocks(shape: Shape, T: Tetromino): Block[] {
 		//center, top position
 		var mid: number = Math.floor(cols/2)-1; //integer division, truncates
 		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos

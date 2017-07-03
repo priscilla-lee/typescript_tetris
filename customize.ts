@@ -20,31 +20,43 @@ var key = {
 
 var delay = 300; //milliseconds
 
+class Color {
+	public outline: string;
+	public fill: string;
+	public shade: string;
+	public highlight: string;
+	public twinkle: string;
 
+	public static I = new Color("#0D455B", "#1A9AFC", "#1986D3", "#26ADFF", "white");
+	public static J = new Color("#001467", "#133BDF", "#1224C2", "#245CDF", "white");
+	public static L = new Color("#842600", "#F96700", "#D74900", "#F78400", "white");
+	public static O = new Color("#CA9720", "#FFDE23", "#FDB900", "#FDC500", "white");
+	public static S = new Color("#459100", "#7EEB00", "#72D000", "#8BED00", "white");
+	public static T = new Color("#8D1B8A", "#DB2DC4", "#C232A2", "#E135CD", "white");
+	public static Z = new Color("#AF203C", "#F21F48", "#F21F48", "#F95A83", "white");
+	public static Empty = new Color("black", "#222", "#222", "#222", "#222");
+	public static Ghost = new Color("black", "#888", "#222", "#222", "#888");
 
-var color = {
-	I: {outline: "#0D455B", fill: "#1A9AFC", shade: "#1986D3", highlight: "#26ADFF", twinkle: "white"},
-	J: {outline: "#001467", fill: "#133BDF", shade: "#1224C2", highlight: "#245CDF", twinkle: "white"},
-	L: {outline: "#842600", fill: "#F96700", shade: "#D74900", highlight: "#F78400", twinkle: "white"},
-	O: {outline: "#CA9720", fill: "#FFDE23", shade: "#FDB900", highlight: "#FDC500", twinkle: "white"},
-	S: {outline: "#459100", fill: "#7EEB00", shade: "#72D000", highlight: "#8BED00", twinkle: "white"},
-	T: {outline: "#8D1B8A", fill: "#DB2DC4", shade: "#C232A2", highlight: "#E135CD", twinkle: "white"},
-	Z: {outline: "#AF203C", fill: "#F21F48", shade: "#F21F48", highlight: "#F95A83", twinkle: "white"},
-	".": {outline: "black", fill: "#222", shade: "#222", highlight: "#222", twinkle: "#222"},
-	"ghost": {outline: "black", fill: "#888", shade: "#222", highlight: "#222", twinkle: "#888"},
-};
+	public constructor(outline: string, fill: string, shade: string, highlight: string, twinkle: string) {
+		this.outline = outline;
+		this.fill = fill;
+		this.shade = shade;
+		this.highlight = highlight;
+		this.twinkle = twinkle;
+	}
+}
 
-function getColor(shape: Shape): any {
+function getColor(shape: Shape): Color {
 	switch(shape) {
-		case (Shape.I): return color['I'];
-		case (Shape.J): return color['J'];
-		case (Shape.L): return color['L'];
-		case (Shape.O): return color['O'];
-		case (Shape.S): return color['S'];
-		case (Shape.T): return color['T'];
-		case (Shape.Z): return color['Z'];
-		case (Shape.Empty): return color["."];
-		case (Shape.Ghost): return color["ghost"];
+		case (Shape.I): return Color.I;
+		case (Shape.J): return Color.J;
+		case (Shape.L): return Color.L;
+		case (Shape.O): return Color.O;
+		case (Shape.S): return Color.S;
+		case (Shape.T): return Color.T;
+		case (Shape.Z): return Color.Z;
+		case (Shape.Empty): return Color.Empty;
+		case (Shape.Ghost): return Color.Ghost;
 	}
 }
 
