@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outFile": "compiled.js"
+        "outFile": "final/compiled.js"
     },
     "files": [
         "customize.ts",
