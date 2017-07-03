@@ -71,7 +71,7 @@ var Game = (function () {
     };
     Game.prototype.step = function () {
         //self.current.drawGhost();
-        this.current.draw();
+        render.drawTetromino(this.current); //this.current.draw();
         if (!this.current.fall())
             this._nextPiece();
         render.next(); //next_draw.all();
@@ -80,11 +80,11 @@ var Game = (function () {
         var next = this.randomPieces.getNext();
         this.current = new Tetromino(next);
         this.current.add();
-        this.current.draw();
+        render.drawTetromino(this.current); //this.current.draw();
         this.limitHold = false;
         this.grid.collapseFullRows();
         //this.current.drawGhost();
-        this.current.draw();
+        render.drawTetromino(this.current); //this.current.draw();
     };
     Game.prototype.move = function (dir) {
         this.current.move(dir);
@@ -105,12 +105,12 @@ var Game = (function () {
         if (this.held) {
             //remmove & erase current
             this.current.remove();
-            this.current.erase();
+            render.eraseTetromino(this.current); //this.current.erase();
             //add & draw held
             this.held.resetPosition();
             this.held.add();
             this.held.resetGhost();
-            this.held.draw();
+            render.drawTetromino(this.held); //this.held.draw();
             //swap
             var temp = this.held;
             this.held = this.current;
@@ -119,20 +119,20 @@ var Game = (function () {
         else {
             //erase current & put in hold
             this.current.remove();
-            this.current.erase();
+            render.eraseTetromino(this.current); //this.current.erase();
             this.held = this.current;
             //draw from next list
             var next = this.randomPieces.getNext();
             this.current = new Tetromino(next);
             this.current.add();
-            this.current.draw();
+            render.drawTetromino(this.current); //this.current.draw();
         }
     };
     Game.prototype.keyPressed = function () {
         render.next(); //next_draw.all();
         render.hold(); //hold_draw.all(); 
         //this.current.drawGhost();
-        this.current.draw();
+        render.drawTetromino(this.current); //this.current.draw();
     };
     return Game;
 }());
@@ -186,7 +186,7 @@ console.log("loaded game.js successfully");
 ************************************************************************/
 var Grid = (function () {
     function Grid() {
-        for (var r = 0; r < rows + topRows; r++) {
+        for (var r = 0; r < rows + NUM_TOP_ROWS; r++) {
             var oneRow = {};
             for (var c = 0; c < cols; c++) {
                 oneRow[c] = ".";
@@ -207,7 +207,7 @@ var Grid = (function () {
         return (col >= 0 && col < cols);
     };
     Grid.prototype._isValidRow = function (row) {
-        return (row >= 0 && row < rows + topRows);
+        return (row >= 0 && row < rows + NUM_TOP_ROWS);
     };
     Grid.prototype._isEmptyRow = function (row) {
         for (var col = 0; col < cols; col++) {
@@ -238,7 +238,7 @@ var Grid = (function () {
     };
     Grid.prototype.collapseFullRows = function () {
         var tallest = this._tallestDirtyRow();
-        for (var r = tallest; r < rows + topRows; r++) {
+        for (var r = tallest; r < rows + NUM_TOP_ROWS; r++) {
             if (this._isFullRow(r))
                 this._collapseRow(r);
         }
@@ -266,7 +266,7 @@ console.log("loaded grid.js successfully");
 var cols = 10; //width
 var rows = 20; //height
 var unit = 20; //size of block on grid
-var topRows = 5; //invisible rows at top, not shown
+var NUM_TOP_ROWS = 5; //invisible rows at top, not shown
 var scale = {
     board: {
         x: unit * 4, y: 0,
@@ -390,7 +390,7 @@ var Render = (function () {
         b.Y += b.y;
         // "all" function
         CanvasUtil.bezel(this.element, "board", width, height);
-        for (var r = topRows; r < rows + topRows; r++) {
+        for (var r = NUM_TOP_ROWS; r < rows + NUM_TOP_ROWS; r++) {
             for (var c = 0; c < cols; c++)
                 this.block(r, c, grid[r][c]);
         }
@@ -406,7 +406,7 @@ var Render = (function () {
         b.Y += b.y;
         // duplicate end
         var size = scale.board.size;
-        var top = topRows * size;
+        var top = NUM_TOP_ROWS * size;
         CanvasUtil.square(this.element, "board", c * size + b.X, r * size + b.Y - top, shape);
     };
     Render.prototype.emptyFrame = function () { };
@@ -416,8 +416,27 @@ var Render = (function () {
     Render.prototype.updateNext = function (tetrominos) { };
     Render.prototype.updateHold = function (tetromino) { };
     Render.prototype.updateBoard = function (grid) { };
-    Render.prototype.eraseTetromino = function () { };
-    Render.prototype.drawTetromino = function () { };
+    Render.prototype.eraseTetromino = function (tetromino) {
+        for (var a = 0; a < 5; a++) {
+            for (var i in tetromino.blocks) {
+                var block = tetromino.blocks[i];
+                if (block.r >= NUM_TOP_ROWS) {
+                    render.block(block.r, block.c, ".");
+                }
+            }
+        } //erase 5 times to eliminate blur trails
+        tetromino.eraseGhost();
+    };
+    Render.prototype.drawTetromino = function (tetromino) {
+        tetromino.drawGhost();
+        for (var i in tetromino.blocks) {
+            //this.blocks[i].draw();
+            var block = tetromino.blocks[i];
+            if (block.r >= NUM_TOP_ROWS) {
+                render.block(block.r, block.c, block.T.shape);
+            }
+        }
+    };
     return Render;
 }());
 /************************************************************************
@@ -650,11 +669,11 @@ var Tetromino = (function () {
     Tetromino.prototype.move = function (dir) {
         if (this._canMove(dir)) {
             this.remove();
-            this.erase();
+            render.eraseTetromino(this); //this.erase();
             for (var i in this.blocks)
                 this.blocks[i].move(dir);
             this.add();
-            this.draw();
+            render.drawTetromino(this); //this.draw();
             return true;
         } //else console.log("can't move " + dir);
         return false;
@@ -669,11 +688,11 @@ var Tetromino = (function () {
     Tetromino.prototype.rotate = function () {
         if (this._canRotate()) {
             this.remove();
-            this.erase();
+            render.eraseTetromino(this); //this.erase();
             for (var b in this.blocks)
                 this.blocks[b].rotate();
             this.add();
-            this.draw();
+            render.drawTetromino(this); //this.draw();
         } //else console.log("can't rotate");
     };
     Tetromino.prototype.add = function () {
@@ -688,17 +707,28 @@ var Tetromino = (function () {
             grid[b.r][b.c] = ".";
         }
     };
-    Tetromino.prototype.draw = function () {
-        this.drawGhost();
-        for (var i in this.blocks)
-            this.blocks[i].draw();
+    Tetromino.prototype._draw = function () {
+        render.drawTetromino(this);
+        // this.drawGhost();
+        // for (var i in this.blocks) {
+        // 	//this.blocks[i].draw();
+        // 	var block = this.blocks[i];
+        // 	if (block.r >= NUM_TOP_ROWS) {
+        // 		render.block(block.r, block.c, block.T.shape);
+        // 	}
+        // }
     };
-    Tetromino.prototype.erase = function () {
-        for (var a = 0; a < 5; a++) {
-            for (var i in this.blocks)
-                this.blocks[i].erase();
-        } //erase 5 times to eliminate blur trails
-        this.eraseGhost();
+    Tetromino.prototype._erase = function () {
+        render.eraseTetromino(this);
+        // for (var a = 0; a < 5; a++) {
+        // 	for (var i in this.blocks) {
+        // 		var block = this.blocks[i];
+        // 		if (block.r >= NUM_TOP_ROWS) {
+        // 			render.block(block.r, block.c, ".");
+        // 		}
+        // 	}
+        // } //erase 5 times to eliminate blur trails
+        // this.eraseGhost();
     };
     Tetromino.prototype.fall = function () {
         return this.move("down");
@@ -744,7 +774,7 @@ var Tetromino = (function () {
         var mid = Math.floor(cols / 2) - 1; //integer division, truncates
         var shift = mid - 1; //shifted for 4-wide or 3-wide tetrominos
         var i = shift, j = shift, l = shift, s = shift, t = shift, z = shift, o = mid;
-        var t = topRows - 1; //shifted for top rows
+        var t = NUM_TOP_ROWS - 1; //shifted for top rows
         switch (shape) {
             case 'I': return [new Block(0 + t, i + 1, T), new Block(0 + t, i + 0, T), new Block(0 + t, i + 2, T), new Block(0 + t, i + 3, T)];
             case 'J': return [new Block(1 + t, j + 1, T), new Block(0 + t, j + 0, T), new Block(1 + t, j + 0, T), new Block(1 + t, j + 2, T)];
@@ -812,14 +842,6 @@ var Block = (function () {
         var newR = (this.c - pivot.c) + pivot.r;
         this.c = newC;
         this.r = newR;
-    };
-    Block.prototype.draw = function () {
-        if (this.r >= topRows)
-            /*board_draw.*/ render.block(this.r, this.c, this.T.shape);
-    };
-    Block.prototype.erase = function () {
-        if (this.r >= topRows)
-            /*board_draw.*/ render.block(this.r, this.c, ".");
     };
     return Block;
 }());

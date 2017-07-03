@@ -2,7 +2,7 @@ var cols = 10; //width
 var rows = 20; //height
 var unit = 20; //size of block on grid
 
-var topRows = 5; //invisible rows at top, not shown
+var NUM_TOP_ROWS = 5; //invisible rows at top, not shown
 
 var scale = {
 	board: {
@@ -147,7 +147,7 @@ class Render {
 
 		// "all" function
 		CanvasUtil.bezel(this.element, "board", width, height);
-		for (var r = topRows; r < rows + topRows; r++) {
+		for (var r = NUM_TOP_ROWS; r < rows + NUM_TOP_ROWS; r++) {
 			for (var c = 0; c < cols; c++) 
 				this.block(r, c, grid[r][c]);
 		}	
@@ -165,7 +165,7 @@ class Render {
 		// duplicate end
 
 		var size = scale.board.size;
-		var top = topRows*size;
+		var top = NUM_TOP_ROWS*size;
 		CanvasUtil.square(this.element, "board", c*size+b.X, r*size+b.Y-top, shape);
 	}
 	public emptyFrame() {}
@@ -175,8 +175,33 @@ class Render {
 	public updateNext(tetrominos) {}
 	public updateHold(tetromino) {}
 	public updateBoard(grid) {}
-	public eraseTetromino() {}
-	public drawTetromino() {}
+	public eraseTetromino(tetromino: Tetromino) {
+		for (var a = 0; a < 5; a++) {
+			for (var i in tetromino.blocks) {
+				var block = tetromino.blocks[i];
+				if (block.r >= NUM_TOP_ROWS) {
+					render.block(block.r, block.c, ".");
+				}
+			}
+		} //erase 5 times to eliminate blur trails
+		tetromino.eraseGhost();
+	}
+	public drawTetromino(tetromino: Tetromino) {
+		tetromino.drawGhost();
+		for (var i in tetromino.blocks) {
+			//this.blocks[i].draw();
+			var block = tetromino.blocks[i];
+			if (block.r >= NUM_TOP_ROWS) {
+				render.block(block.r, block.c, block.T.shape);
+			}
+		}
+	}
+	public drawGhost(ghost: Ghost) {
+
+	}
+	public eraseGhost(ghost: Ghost) {
+		
+	}
 }
 
 /************************************************************************

@@ -8,9 +8,10 @@
 *
 ************************************************************************/
 
-- reorg blocks into tetromino parent
-- refactor ts classes
-- fix rendering (esp of tetrominos)
+- refactor rendering (esp of tetrominos)
+- refactor ghost management
+- refactor dependencies
+- clean of global namespace, organize final consts?
 - manage grid top rows better
 - handle collision/gameover
 - manage speed ramp of game

@@ -37,18 +37,19 @@ class Game {
 	}
 	public step() {
 		//self.current.drawGhost();
-		this.current.draw();
+		render.drawTetromino(this.current); 
 		if (!this.current.fall()) this._nextPiece();	
-		render.next(); //next_draw.all();
+		render.next();
 	}
 	private _nextPiece() {
 		var next = this.randomPieces.getNext();
 		this.current = new Tetromino(next);
-		this.current.add(); this.current.draw();
+		this.current.add(); 
+		render.drawTetromino(this.current); 
 		this.limitHold = false;
 		this.grid.collapseFullRows();
 		//this.current.drawGhost();
-		this.current.draw();
+		render.drawTetromino(this.current); 
 	}
 	public move(dir) {
 		this.current.move(dir);
@@ -68,31 +69,33 @@ class Game {
 		if (this.held) {
 			//remmove & erase current
 			this.current.remove(); 
-			this.current.erase();
+			render.eraseTetromino(this.current); 
 			//add & draw held
 			this.held.resetPosition();
 			this.held.add(); 
 			this.held.resetGhost(); 
-			this.held.draw();
+			render.drawTetromino(this.held); 
 			//swap
 			var temp = this.held; 
 			this.held = this.current;
 			this.current = temp;
 		} else {
 			//erase current & put in hold
-			this.current.remove(); this.current.erase();
+			this.current.remove(); 
+			render.eraseTetromino(this.current); 
 			this.held = this.current;
 			//draw from next list
 			var next = this.randomPieces.getNext();
 			this.current = new Tetromino(next);
-			this.current.add(); this.current.draw();
+			this.current.add(); 
+			render.drawTetromino(this.current); 
 		}
 	}
 	public keyPressed() {
-		render.next(); //next_draw.all();
-		render.hold(); //hold_draw.all(); 
+		render.next(); 
+		render.hold();  
 		//this.current.drawGhost();
-		this.current.draw();
+		render.drawTetromino(this.current); 
 	}
 }
 

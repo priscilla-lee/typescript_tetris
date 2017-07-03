@@ -3,7 +3,7 @@
 ************************************************************************/
 class Grid {
 	public constructor() {
-		for (var r = 0; r < rows + topRows; r++) {
+		for (var r = 0; r < rows + NUM_TOP_ROWS; r++) {
 			var oneRow = {};
 			for (var c = 0; c < cols; c++) {oneRow[c] = "."}
 			this[r] = oneRow;
@@ -23,7 +23,7 @@ class Grid {
 		return (col >= 0 && col < cols);
 	}
 	private _isValidRow(row) {
-		return (row >= 0 && row < rows + topRows);
+		return (row >= 0 && row < rows + NUM_TOP_ROWS);
 	}
 	private _isEmptyRow(row) {
 		for (var col = 0; col < cols; col++) {
@@ -45,11 +45,11 @@ class Grid {
 			this._shiftRowFromTo(row-1, row);
 			row--;
 		} this._clearRow(row); //clear the top row that got shifted down
-		render.board(); //board_draw.all(); 
+		render.board();
 	}
 	public collapseFullRows() {
 		var tallest = this._tallestDirtyRow();
-		for (var r = tallest; r < rows + topRows; r++) {
+		for (var r = tallest; r < rows + NUM_TOP_ROWS; r++) {
 			if (this._isFullRow(r)) this._collapseRow(r);
 		}
 	}

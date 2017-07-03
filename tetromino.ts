@@ -28,9 +28,11 @@ class Tetromino {
 	}
 	public move(dir) {
 		if (this._canMove(dir)) {
-			this.remove(); this.erase();
+			this.remove(); 
+			render.eraseTetromino(this); 
 			for (var i in this.blocks) this.blocks[i].move(dir);
-			this.add(); this.draw();
+			this.add(); 
+			render.drawTetromino(this); 
 			return true;
 		} //else console.log("can't move " + dir);
 		return false;
@@ -42,9 +44,11 @@ class Tetromino {
 	}
 	public rotate() {
 		if (this._canRotate()) {
-			this.remove(); this.erase();
+			this.remove(); 
+			render.eraseTetromino(this); 
 			for (var b in this.blocks) this.blocks[b].rotate();
-			this.add(); this.draw();
+			this.add(); 
+			render.drawTetromino(this); 
 		} //else console.log("can't rotate");
 	}
 	public add() {
@@ -59,17 +63,6 @@ class Tetromino {
 			grid[b.r][b.c] = ".";
 		}
 	}
-	public draw() {
-		this.drawGhost();
-		for (var i in this.blocks) this.blocks[i].draw();
-	}
-	public erase() {
-		for (var a = 0; a < 5; a++) {
-			for (var i in this.blocks) 
-				this.blocks[i].erase();
-		} //erase 5 times to eliminate blur trails
-		this.eraseGhost();
-	}
 	public fall() {
 		return this.move("down");
 	}
@@ -80,14 +73,14 @@ class Tetromino {
 		this.calcGhost();
 		for (var i in this.ghostBlocks) {
 			var g = this.ghostBlocks[i]
-			/*board_draw.*/ render.block(g.r, g.c, "."); 
+			render.block(g.r, g.c, "."); 
 		}
 	}
 	public drawGhost() {
 		this.calcGhost();
 		for (var i in this.ghostBlocks) {
 			var g = this.ghostBlocks[i];
-			/*board_draw.*/ render.block(g.r, g.c, "ghost");
+			render.block(g.r, g.c, "ghost");
 		}
 	}
 	public resetGhost() {
@@ -111,7 +104,7 @@ class Tetromino {
 		var mid = Math.floor(cols/2)-1; //integer division, truncates
 		var shift = mid-1; //shifted for 4-wide or 3-wide tetrominos
 		var i=shift, j=shift, l=shift, s=shift, t=shift, z=shift, o=mid;
-		var t = topRows -1; //shifted for top rows
+		var t = NUM_TOP_ROWS -1; //shifted for top rows
 
 		switch(shape) {
 			case 'I': return [new Block(0+t,i+1,T), new Block(0+t,i+0,T), new Block(0+t,i+2,T), new Block(0+t,i+3,T)];
@@ -124,6 +117,10 @@ class Tetromino {
 			case 'ghost': return [new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T)];
 		}
 	}
+}
+
+class Ghost {
+
 }
 
 /************************************************************************
@@ -169,14 +166,6 @@ class Block {
 		var newR = (this.c - pivot.c) + pivot.r;    
 		this.c = newC;
 		this.r = newR;
-	}
-	public draw() {
-		if (this.r >= topRows)
-			/*board_draw.*/ render.block(this.r, this.c, this.T.shape);
-	}
-	public erase() {
-		if (this.r >= topRows) 
-			/*board_draw.*/ render.block(this.r, this.c, ".");
 	}
 }
 
