@@ -1,12 +1,14 @@
+
+
 /************************************************************************
 * TETROMINO: stores shape, an array of blocks, and methods
 *			 contains, canMove, move, canRotate, rotate, add, & remove
 ************************************************************************/
 class Tetromino {
-	public shape: string;
+	public shape: Shape;
 	public blocks: Block[];
 	public ghost: Ghost;
-	public constructor(shape: string) {
+	public constructor(shape: Shape) {
 		this.shape = shape;
 		this.blocks = Tetromino.getBlocks(this.shape, this);
 		this.ghost = new Ghost(this);
@@ -55,13 +57,13 @@ class Tetromino {
 	public add(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
-			grid[b.r][b.c] = this.shape;
+			grid.set(b.r, b.c, this.shape);
 		}
 	}
 	public remove(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
-			grid[b.r][b.c] = ".";
+			grid.set(b.r, b.c, Shape.Empty);
 		}
 	}
 	public fall(): boolean {
@@ -73,7 +75,7 @@ class Tetromino {
 	public getGhost(): Ghost {
 		return this.ghost.calculate();
 	}
-	public static getBlocks(shape: String, T: Tetromino): any {
+	public static getBlocks(shape: Shape, T: Tetromino): any {
 		//center, top position
 		var mid: number = Math.floor(cols/2)-1; //integer division, truncates
 		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos
@@ -89,14 +91,14 @@ class Tetromino {
 		var t: number = NUM_TOP_ROWS -1; //shifted for top rows
 
 		switch(shape) {
-			case 'I': return [new Block(0+t,i+1,T), new Block(0+t,i+0,T), new Block(0+t,i+2,T), new Block(0+t,i+3,T)];
-			case 'J': return [new Block(1+t,j+1,T), new Block(0+t,j+0,T), new Block(1+t,j+0,T), new Block(1+t,j+2,T)];
-			case 'L': return [new Block(1+t,l+1,T), new Block(0+t,l+2,T), new Block(1+t,l+0,T), new Block(1+t,l+2,T)];
-			case 'O': return [new Block(0+t,o+0,T), new Block(0+t,o+1,T), new Block(1+t,o+0,T), new Block(1+t,o+1,T)];
-			case 'S': return [new Block(0+t,s+1,T), new Block(0+t,s+2,T), new Block(1+t,s+0,T), new Block(1+t,s+1,T)];
-			case 'T': return [new Block(1+t,t+1,T), new Block(0+t,t+1,T), new Block(1+t,t+0,T), new Block(1+t,t+2,T)];
-			case 'Z': return [new Block(0+t,z+1,T), new Block(0+t,z+0,T), new Block(1+t,z+1,T), new Block(1+t,z+2,T)];
-			case 'ghost': return [new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T)];
+			case Shape.I: return [new Block(0+t,i+1,T), new Block(0+t,i+0,T), new Block(0+t,i+2,T), new Block(0+t,i+3,T)];
+			case Shape.J: return [new Block(1+t,j+1,T), new Block(0+t,j+0,T), new Block(1+t,j+0,T), new Block(1+t,j+2,T)];
+			case Shape.L: return [new Block(1+t,l+1,T), new Block(0+t,l+2,T), new Block(1+t,l+0,T), new Block(1+t,l+2,T)];
+			case Shape.O: return [new Block(0+t,o+0,T), new Block(0+t,o+1,T), new Block(1+t,o+0,T), new Block(1+t,o+1,T)];
+			case Shape.S: return [new Block(0+t,s+1,T), new Block(0+t,s+2,T), new Block(1+t,s+0,T), new Block(1+t,s+1,T)];
+			case Shape.T: return [new Block(1+t,t+1,T), new Block(0+t,t+1,T), new Block(1+t,t+0,T), new Block(1+t,t+2,T)];
+			case Shape.Z: return [new Block(0+t,z+1,T), new Block(0+t,z+0,T), new Block(1+t,z+1,T), new Block(1+t,z+2,T)];
+			case Shape.Ghost: return [new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T)];
 		}
 	}
 }
@@ -126,7 +128,7 @@ class Ghost {
 		return this;
 	}
 	public reset(): void { //position
-		this.blocks = Tetromino.getBlocks("ghost", this._tetromino);
+		this.blocks = Tetromino.getBlocks(Shape.Ghost, this._tetromino);
 	}
 	public contains(r: number, c: number): boolean {
 		for (var i in this.blocks) {
@@ -166,14 +168,14 @@ class Block {
 		if (dir == Direction.Right) {this.c++;}
 	}
 	public canRotate(): boolean {
-		if (this._T.shape == "O") return true; //squares don't rotate
+		if (this._T.shape == Shape.O) return true; //squares don't rotate
 		var pivot: Block = this._T.blocks[0]; //first block is pivot
 		var newR: number = (this.c - pivot.c) + pivot.r;    
 		var newC: number = -(this.r - pivot.r) + pivot.c;		
 		return (this._T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
 	public rotate(): void {
-		if (this._T.shape == "O") return; //squares don't rotate
+		if (this._T.shape == Shape.O) return; //squares don't rotate
 		var pivot: Block = this._T.blocks[0]; //first block is pivot
 		var newC: number = -(this.r - pivot.r) + pivot.c;
 		var newR: number = (this.c - pivot.c) + pivot.r;    

@@ -101,7 +101,7 @@ class Render {
 
 		n.X += n.x; n.Y += n.y;
 
-		var array: string[] = game.randomPieces.getList();
+		var array: Shape[] = game.randomPieces.getList();
 
 		// "all" function
 		CanvasUtil.bezel(this.element, "next", width, height);
@@ -137,7 +137,7 @@ class Render {
 			var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, game.held.shape);
 			boxDraw.box();			
 		} else {
-			var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, ".");
+			var boxDraw: BoxDraw = new BoxDraw(this.element, "box_md", h.X+0, h.Y+0, Shape.Empty);
 			boxDraw.empty();
 		}
 	}
@@ -155,10 +155,10 @@ class Render {
 		CanvasUtil.bezel(this.element, "board", width, height);
 		for (var r = NUM_TOP_ROWS; r < rows + NUM_TOP_ROWS; r++) {
 			for (var c = 0; c < cols; c++) 
-				this.block(r, c, grid[r][c]);
+				this.block(r, c, grid.get(r,c));
 		}	
 	}
-	public block(r: number, c: number, shape: string): void {
+	public block(r: number, c: number, shape: Shape): void {
 		// duplicate beginning
 		var b: any = scale.board;
 		b.X = b.outer + b.mid + b.inner + b.ctn;
@@ -186,7 +186,7 @@ class Render {
 			for (var i in tetromino.blocks) {
 				var block = tetromino.blocks[i];
 				if (block.r >= NUM_TOP_ROWS) {
-					render.block(block.r, block.c, ".");
+					render.block(block.r, block.c, Shape.Empty); 
 				}
 			}
 		} //erase 5 times to eliminate blur trails
@@ -197,7 +197,7 @@ class Render {
 		for (var i in tetromino.blocks) {
 			var block = tetromino.blocks[i];
 			if (block.r >= NUM_TOP_ROWS) {
-				render.block(block.r, block.c, tetromino.shape); //block.T.shape);
+				render.block(block.r, block.c, tetromino.shape);
 			}
 		}
 	}
@@ -205,7 +205,7 @@ class Render {
 		var ghostBlocks: Block[] = tetromino.getGhost().blocks;
 		for (var i in ghostBlocks) {
 			var g = ghostBlocks[i]
-			render.block(g.r, g.c, "."); 
+			render.block(g.r, g.c, Shape.Empty);  
 		}
 
 	}
@@ -213,7 +213,7 @@ class Render {
 		var ghostBlocks: Block[] = tetromino.getGhost().blocks;
 		for (var i in ghostBlocks) {
 			var g = ghostBlocks[i];
-			render.block(g.r, g.c, "ghost");
+			render.block(g.r, g.c, Shape.Ghost); 
 		}
 
 	}
@@ -233,15 +233,15 @@ class CanvasUtil {
 			ctx.rect(x, y, w, h);
 			if (weight != 0) ctx.stroke();
 	}
-	public static square(element: any, scal: string, x: number, y: number, shape: string): void {
+	public static square(element: any, scal: string, x: number, y: number, shape: Shape): void {
 		var size: number = scale[scal].size;
 		var weight: number = scale[scal].weight;
 
-		var otln: string = color[shape].outline;
-		var fill: string = color[shape].fill;
-		var shd: string = color[shape].shade;
-		var hlgt: string = color[shape].highlight;
-		var twkl: string = color[shape].twinkle;
+		var otln: string = getColor(shape).outline;
+		var fill: string = getColor(shape).fill;
+		var shd: string = getColor(shape).shade;
+		var hlgt: string = getColor(shape).highlight;
+		var twkl: string = getColor(shape).twinkle;
 
 		//outline
 		this.rect(element, x, y, size, size, 0, otln, otln);
@@ -268,7 +268,7 @@ class CanvasUtil {
 	public static box(element: any, scal: string, x: number, y: number): void {
 		var size: number = scale[scal].box;
 		var weight: number = scale[scal].weight;
-		var fill: string = color["."].fill;
+		var fill: string = getColor(Shape.Empty).fill;
 		// this.rect(loc, x, y, size, size, weight, fill, "black");
 		this.roundRect(element, x, y, size, size, unit/3, "black");
 		this.roundRect(element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, unit/4, fill);
@@ -324,19 +324,25 @@ class BoxDraw {
 	public scal: string;
 	public x: number;
 	public y: number;
-	private _shape: string;
-	public dimensions: any;
+	private _shape: Shape;
 
-	public constructor(element: any, scal: string, x: number, y: number, shape: string) {
+	public constructor(element: any, scal: string, x: number, y: number, shape: Shape) {
 		this.element = element;
 		this.scal = scal;
 		this.x = x;
 		this.y = y;
 		this._shape = shape;
-		this.dimensions = {
-			I: {w: 4, h: 1}, J: {w: 3, h: 2}, L: {w: 3, h: 2}, O: {w: 2, h: 2}, 
-			S: {w: 3, h: 2}, T: {w: 3, h: 2}, Z: {w: 3, h: 2}
-		};
+	}
+	private _getDimensions() {
+		switch (this._shape) {
+			case Shape.I: return {w: 4, h: 1};
+			case Shape.J: return {w: 3, h: 2};
+			case Shape.L: return {w: 3, h: 2};
+			case Shape.O: return {w: 2, h: 2}; 
+			case Shape.S: return {w: 3, h: 2};
+			case Shape.T: return {w: 3, h: 2};  
+			case Shape.Z: return {w: 3, h: 2};
+		}
 	}
 	public box():void {
 		this.empty();
@@ -351,7 +357,7 @@ class BoxDraw {
 			CanvasUtil.square(this.element, this.scal, coords[i].X, coords[i].Y, this._shape);
 	}
 	private _getCenterCoord(): any {
-		var dim = this.dimensions[this._shape];
+		var dim = this._getDimensions();
 		var box = scale[this.scal].box;
 		var size = scale[this.scal].size;
 
@@ -365,13 +371,13 @@ class BoxDraw {
 		var ctr = this._getCenterCoord();
 		var x = ctr.X, y = ctr.Y;
 		switch (this._shape) {
-			case 'I': return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+(2*s), Y:y}, {X:x+(3*s), Y:y}];
-			case 'J': return [{X:x, Y:y}, {X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
-			case 'L': return [{X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}, {X:x+(2*s), Y:y}];
-			case 'O': return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+s, Y:y+s}, {X:x, Y:y+s}];
-			case 'S': return [{X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+s, Y:y}, {X:x+(2*s), Y:y}];
-			case 'T': return [{X:x+s, Y:y}, {X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
-			case 'Z': return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
+			case Shape.I: return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+(2*s), Y:y}, {X:x+(3*s), Y:y}];
+			case Shape.J: return [{X:x, Y:y}, {X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
+			case Shape.L: return [{X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}, {X:x+(2*s), Y:y}];
+			case Shape.O: return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+s, Y:y+s}, {X:x, Y:y+s}];
+			case Shape.S: return [{X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+s, Y:y}, {X:x+(2*s), Y:y}];
+			case Shape.T: return [{X:x+s, Y:y}, {X:x, Y:y+s}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
+			case Shape.Z: return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+s, Y:y+s}, {X:x+(2*s), Y:y+s}];
 		}
 	}
 }

@@ -20,6 +20,8 @@ var key = {
 
 var delay = 300; //milliseconds
 
+
+
 var color = {
 	I: {outline: "#0D455B", fill: "#1A9AFC", shade: "#1986D3", highlight: "#26ADFF", twinkle: "white"},
 	J: {outline: "#001467", fill: "#133BDF", shade: "#1224C2", highlight: "#245CDF", twinkle: "white"},
@@ -31,6 +33,20 @@ var color = {
 	".": {outline: "black", fill: "#222", shade: "#222", highlight: "#222", twinkle: "#222"},
 	"ghost": {outline: "black", fill: "#888", shade: "#222", highlight: "#222", twinkle: "#888"},
 };
+
+function getColor(shape: Shape): any {
+	switch(shape) {
+		case (Shape.I): return color['I'];
+		case (Shape.J): return color['J'];
+		case (Shape.L): return color['L'];
+		case (Shape.O): return color['O'];
+		case (Shape.S): return color['S'];
+		case (Shape.T): return color['T'];
+		case (Shape.Z): return color['Z'];
+		case (Shape.Empty): return color["."];
+		case (Shape.Ghost): return color["ghost"];
+	}
+}
 
 // var color = {
 // 	I: {outline: "black", fill: "turquoise", shade: "turquoise", highlight: "turquoise"},

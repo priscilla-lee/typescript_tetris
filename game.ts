@@ -1,8 +1,9 @@
 enum Direction {
-	Up,
-	Down,
-	Left,
-	Right
+	Up, Down, Left, Right
+}
+
+enum Shape {
+	I, J, L, O, S, T, Z, Ghost, Empty
 }
 
 /************************************************************************
@@ -49,7 +50,7 @@ class Game {
 		render.next();
 	}
 	private _nextPiece(): void {
-		var next: string = this.randomPieces.getNext();
+		var next: Shape = this.randomPieces.getNext();
 		this.current = new Tetromino(next);
 		this.current.add(); 
 		render.drawTetromino(this.current); 
@@ -91,7 +92,7 @@ class Game {
 			render.eraseTetromino(this.current); 
 			this.held = this.current;
 			//draw from next list
-			var next: string = this.randomPieces.getNext();
+			var next: Shape = this.randomPieces.getNext();
 			this.current = new Tetromino(next);
 			this.current.add(); 
 			render.drawTetromino(this.current); 
@@ -109,8 +110,8 @@ class Game {
 * RANDOM PIECE GENERATOR: 7 bag method
 ************************************************************************/
 class RandomPieces {
-	private _pieces: string[];
-	private _bag: string[];
+	private _pieces: Shape[];
+	private _bag: Shape[];
 	public constructor() {
 		this._bag = [];
 		this._pieces = [];
@@ -120,22 +121,22 @@ class RandomPieces {
 			this._pieces.push(this._select());
 		}
 	}
-	private _select(): string { // pieces one at a time from bag
+	private _select(): Shape { // pieces one at a time from bag
 		if (this._bag.length == 0) {
-			this._bag = ["I", "J", "L", "O", "S", "T", "Z"];
+			this._bag = [Shape.I, Shape.J, Shape.L, Shape.O, Shape.S, Shape.T, Shape.Z];
 		}
 		var randomIndex: number = Math.floor(Math.random() * this._bag.length);
-		var selected: string = this._bag[randomIndex];
+		var selected: Shape = this._bag[randomIndex];
 		this._bag.splice(randomIndex, 1);
 		return selected;
 	}
-	public getNext(): string { 
+	public getNext(): Shape { 
 		// remove first piece from list, shift everything down, add a new piece (maintain number)
-		var next: string = this._pieces.shift();
+		var next: Shape = this._pieces.shift();
 		this._pieces.push(this._select());
 		return next;
 	}
-	public getList(): string[] {
+	public getList(): Shape[] {
 		return this._pieces;		
 	}
 }
