@@ -24,12 +24,11 @@ class Game {
 
 	public start() {
 		this.started = true;
-		this.nextPiece();
+		this._nextPiece();
 		this.play();
 	}
 	public play() {
-		this.loop = setInterval(() => this.step(), delay); 
-		console.log("PLAY this: " + this + " /t self: " + self);
+		this.loop = setInterval(() => this.step(), delay);
 		this.playing = true;
 	}
 	public pause() {
@@ -38,12 +37,11 @@ class Game {
 	}
 	public step() {
 		//self.current.drawGhost();
-		console.log("STEP this: " + this + " /t self: " + self);
 		this.current.draw();
-		if (!this.current.fall()) this.nextPiece();	
+		if (!this.current.fall()) this._nextPiece();	
 		render.next(); //next_draw.all();
 	}
-	public nextPiece() {
+	private _nextPiece() {
 		var next = this.randomPieces.getNext();
 		this.current = new Tetromino(next);
 		this.current.add(); this.current.draw();
@@ -60,7 +58,7 @@ class Game {
 	}
 	public drop() {
 		this.current.drop();
-		this.nextPiece();
+		this._nextPiece();
 	}
 	public hold() {
 		//limit hold swaps
@@ -103,36 +101,37 @@ class Game {
 ************************************************************************/
 class RandomPieces {
 	private _list;
-	public bag;
+	private _bag;
 	public constructor() {
-		this.bag = new Bag();
-		this._list = this.bag.batch();
+		this._bag = new Bag();
+		this._list = this._bag.batch();
 	}
 	public getList() {
 		return this._list;
 	}
 	public getNext(number=1) {
-		if (this._list.length < 7 ) //maintain 7 random pieces
-			this._list.push(this.bag.select());
+		if (this._list.length < Bag.MAX_CAPACITY ) //maintain 7 random pieces
+			this._list.push(this._bag.select());
 		var next = this._list.shift(); //removes first and shifts everything down
 		return next;
 	}
 }
 
 class Bag {
-	public pieces;
+	public static MAX_CAPACITY = 7;
+	private _pieces;
 	public constructor() {
-		this.pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+		this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
 	} 
 	public select() {
-		if (this.pieces.length == 0) this.replenish();
-		var randomIndex = Math.floor(Math.random() * this.pieces.length);
-		var selected = this.pieces[randomIndex];
-		this.pieces.splice(randomIndex, 1);
+		if (this._pieces.length == 0) this._replenish();
+		var randomIndex = Math.floor(Math.random() * this._pieces.length);
+		var selected = this._pieces[randomIndex];
+		this._pieces.splice(randomIndex, 1);
 		return selected;
 	}
-	public replenish() {
-		this.pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+	private _replenish() {
+		this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
 	}
 	public batch() { //returns an array (a "batch") of 7 pieces
 		var batch = [];

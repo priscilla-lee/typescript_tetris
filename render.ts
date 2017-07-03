@@ -37,7 +37,6 @@ var scale = {
 	}
 };
 
-
 class Dimensions {
 	public static next() {
 		var box = scale["box_md"].box;
@@ -235,7 +234,7 @@ class CanvasUtil {
 		this.roundRect(element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, unit/4, fill);
 	}
 	public static roundRect(element, x, y, w, h, r, color) {
-		var ctx= element.getContext("2d");
+		var ctx = element.getContext("2d");
 			ctx.beginPath();
 			ctx.fillStyle = color;
 			// ctx.strokeStyle = "red";
@@ -294,7 +293,7 @@ class BoxDraw {
 		this.x = x;
 		this.y = y;
 		this._shape = shape;
-		this.dimensions = { 
+		this.dimensions = {
 			I: {w: 4, h: 1}, J: {w: 3, h: 2}, L: {w: 3, h: 2}, O: {w: 2, h: 2}, 
 			S: {w: 3, h: 2}, T: {w: 3, h: 2}, Z: {w: 3, h: 2}
 		};
@@ -307,11 +306,11 @@ class BoxDraw {
 		CanvasUtil.box(this.element, this.scal, this.x, this.y);
 	}
 	public shape() {
-		var coords = this.getShapeCoords();
+		var coords = this._getShapeCoords();
 		for (var i in coords)
 			CanvasUtil.square(this.element, this.scal, coords[i].X, coords[i].Y, this._shape);
 	}
-	public getCenterCoord() {
+	private _getCenterCoord() {
 		var dim = this.dimensions[this._shape];
 		var box = scale[this.scal].box;
 		var size = scale[this.scal].size;
@@ -321,9 +320,9 @@ class BoxDraw {
 
 		return {X: xCenter, Y: yCenter};
 	}
-	public getShapeCoords() {
+	private _getShapeCoords() {
 		var s = scale[this.scal].size;
-		var ctr = this.getCenterCoord();
+		var ctr = this._getCenterCoord();
 		var x = ctr.X, y = ctr.Y;
 		switch (this._shape) {
 			case 'I': return [{X:x, Y:y}, {X:x+s, Y:y}, {X:x+(2*s), Y:y}, {X:x+(3*s), Y:y}];

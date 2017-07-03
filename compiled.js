@@ -57,13 +57,12 @@ var Game = (function () {
     }
     Game.prototype.start = function () {
         this.started = true;
-        this.nextPiece();
+        this._nextPiece();
         this.play();
     };
     Game.prototype.play = function () {
         var _this = this;
         this.loop = setInterval(function () { return _this.step(); }, delay);
-        console.log("PLAY this: " + this + " /t self: " + self);
         this.playing = true;
     };
     Game.prototype.pause = function () {
@@ -72,13 +71,12 @@ var Game = (function () {
     };
     Game.prototype.step = function () {
         //self.current.drawGhost();
-        console.log("STEP this: " + this + " /t self: " + self);
         this.current.draw();
         if (!this.current.fall())
-            this.nextPiece();
+            this._nextPiece();
         render.next(); //next_draw.all();
     };
-    Game.prototype.nextPiece = function () {
+    Game.prototype._nextPiece = function () {
         var next = this.randomPieces.getNext();
         this.current = new Tetromino(next);
         this.current.add();
@@ -96,7 +94,7 @@ var Game = (function () {
     };
     Game.prototype.drop = function () {
         this.current.drop();
-        this.nextPiece();
+        this._nextPiece();
     };
     Game.prototype.hold = function () {
         //limit hold swaps
@@ -143,16 +141,16 @@ var Game = (function () {
 ************************************************************************/
 var RandomPieces = (function () {
     function RandomPieces() {
-        this.bag = new Bag();
-        this._list = this.bag.batch();
+        this._bag = new Bag();
+        this._list = this._bag.batch();
     }
     RandomPieces.prototype.getList = function () {
         return this._list;
     };
     RandomPieces.prototype.getNext = function (number) {
         if (number === void 0) { number = 1; }
-        if (this._list.length < 7)
-            this._list.push(this.bag.select());
+        if (this._list.length < Bag.MAX_CAPACITY)
+            this._list.push(this._bag.select());
         var next = this._list.shift(); //removes first and shifts everything down
         return next;
     };
@@ -160,18 +158,18 @@ var RandomPieces = (function () {
 }());
 var Bag = (function () {
     function Bag() {
-        this.pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+        this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
     }
     Bag.prototype.select = function () {
-        if (this.pieces.length == 0)
-            this.replenish();
-        var randomIndex = Math.floor(Math.random() * this.pieces.length);
-        var selected = this.pieces[randomIndex];
-        this.pieces.splice(randomIndex, 1);
+        if (this._pieces.length == 0)
+            this._replenish();
+        var randomIndex = Math.floor(Math.random() * this._pieces.length);
+        var selected = this._pieces[randomIndex];
+        this._pieces.splice(randomIndex, 1);
         return selected;
     };
-    Bag.prototype.replenish = function () {
-        this.pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+    Bag.prototype._replenish = function () {
+        this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
     };
     Bag.prototype.batch = function () {
         var batch = [];
@@ -179,6 +177,7 @@ var Bag = (function () {
             batch.push(this.select());
         return batch;
     };
+    Bag.MAX_CAPACITY = 7;
     return Bag;
 }());
 console.log("loaded game.js successfully");
@@ -196,69 +195,69 @@ var Grid = (function () {
         } //creates the 2d array
     }
     Grid.prototype.isValidEmpty = function (row, col) {
-        return this.isValid(row, col) && this.isEmpty(row, col);
+        return this._isValid(row, col) && this._isEmpty(row, col);
     };
-    Grid.prototype.isEmpty = function (row, col) {
+    Grid.prototype._isEmpty = function (row, col) {
         return this[row][col] == ".";
     };
-    Grid.prototype.isValid = function (row, col) {
-        return this.isValidRow(row) && this.isValidCol(col);
+    Grid.prototype._isValid = function (row, col) {
+        return this._isValidRow(row) && this._isValidCol(col);
     };
-    Grid.prototype.isValidCol = function (col) {
+    Grid.prototype._isValidCol = function (col) {
         return (col >= 0 && col < cols);
     };
-    Grid.prototype.isValidRow = function (row) {
+    Grid.prototype._isValidRow = function (row) {
         return (row >= 0 && row < rows + topRows);
     };
-    Grid.prototype.isEmptyRow = function (row) {
+    Grid.prototype._isEmptyRow = function (row) {
         for (var col = 0; col < cols; col++) {
             if (this[row][col] != ".")
                 return false;
         }
         return true;
     };
-    Grid.prototype.isFullRow = function (row) {
+    Grid.prototype._isFullRow = function (row) {
         for (var col = 0; col < cols; col++) {
             if (this[row][col] == ".")
                 return false;
         }
         return true;
     };
-    Grid.prototype.clearRow = function (row) {
+    Grid.prototype._clearRow = function (row) {
         for (var c = 0; c < cols; c++)
             this[row][c] = ".";
     };
-    Grid.prototype.collapseRow = function (row) {
-        var tallest = this.tallestDirtyRow();
+    Grid.prototype._collapseRow = function (row) {
+        var tallest = this._tallestDirtyRow();
         while (row > tallest) {
-            this.shiftRowFromTo(row - 1, row);
+            this._shiftRowFromTo(row - 1, row);
             row--;
         }
-        this.clearRow(row); //clear the top row that got shifted down
+        this._clearRow(row); //clear the top row that got shifted down
         render.board(); //board_draw.all(); 
     };
     Grid.prototype.collapseFullRows = function () {
-        var tallest = this.tallestDirtyRow();
+        var tallest = this._tallestDirtyRow();
         for (var r = tallest; r < rows + topRows; r++) {
-            if (this.isFullRow(r))
-                this.collapseRow(r);
+            if (this._isFullRow(r))
+                this._collapseRow(r);
         }
     };
-    Grid.prototype.shiftRowFromTo = function (from, to) {
+    Grid.prototype._shiftRowFromTo = function (from, to) {
         for (var c = 0; c < cols; c++)
             this[to][c] = this[from][c];
     };
-    Grid.prototype.isDirtyRow = function (row) {
-        return !this.isEmptyRow(row);
+    Grid.prototype._isDirtyRow = function (row) {
+        return !this._isEmptyRow(row);
     };
-    Grid.prototype.tallestDirtyRow = function () {
+    Grid.prototype._tallestDirtyRow = function () {
         var r = rows - 1;
-        while (this.isDirtyRow(r))
+        while (this._isDirtyRow(r))
             r--;
         return r + 1;
     };
-    Grid.prototype.numDirtyRows = function () {
-        var tallest = this.tallestDirtyRow();
+    Grid.prototype._numDirtyRows = function () {
+        var tallest = this._tallestDirtyRow();
         return rows - tallest; //# of "dirty" rows
     };
     return Grid;
@@ -542,11 +541,11 @@ var BoxDraw = (function () {
         CanvasUtil.box(this.element, this.scal, this.x, this.y);
     };
     BoxDraw.prototype.shape = function () {
-        var coords = this.getShapeCoords();
+        var coords = this._getShapeCoords();
         for (var i in coords)
             CanvasUtil.square(this.element, this.scal, coords[i].X, coords[i].Y, this._shape);
     };
-    BoxDraw.prototype.getCenterCoord = function () {
+    BoxDraw.prototype._getCenterCoord = function () {
         var dim = this.dimensions[this._shape];
         var box = scale[this.scal].box;
         var size = scale[this.scal].size;
@@ -554,9 +553,9 @@ var BoxDraw = (function () {
         var yCenter = this.y + (box - size * dim.h) / 2; //depends on height
         return { X: xCenter, Y: yCenter };
     };
-    BoxDraw.prototype.getShapeCoords = function () {
+    BoxDraw.prototype._getShapeCoords = function () {
         var s = scale[this.scal].size;
-        var ctr = this.getCenterCoord();
+        var ctr = this._getCenterCoord();
         var x = ctr.X, y = ctr.Y;
         switch (this._shape) {
             case 'I': return [{ X: x, Y: y }, { X: x + s, Y: y }, { X: x + (2 * s), Y: y }, { X: x + (3 * s), Y: y }];
@@ -612,15 +611,12 @@ window.onkeydown = function (e) {
 ************************************************************************/
 var grid = new Grid();
 var game = new Game(grid);
-//var board_draw = new Board_Draw(canvas);
 var render = new Render(canvas);
-//var next_draw = new Next_Draw();
-//var hold_draw = new Hold_Draw(canvas);
-canvas.height = Math.max(Dimensions.board().width /*board_draw.height*/, Dimensions.next().height /*next_draw.height*/ * 1.2) + 100;
-canvas.width = Dimensions.board().width /*board_draw.width*/ + Dimensions.next().width /*next_draw.width*/ + Dimensions.hold().width; //hold_draw.width;
-render.board(); //board_draw.all();
-render.next(); //next_draw.all();
-render.hold(); //hold_draw.all();
+canvas.height = Math.max(Dimensions.board().width, Dimensions.next().height * 1.2) + 100;
+canvas.width = Dimensions.board().width + Dimensions.next().width + Dimensions.hold().width;
+render.board();
+render.next();
+render.hold();
 console.log("loaded tetris.js successfully");
 /************************************************************************
 * TETROMINO: stores shape, an array of blocks, and methods

@@ -11,62 +11,62 @@ class Grid {
 
 	}
 	public isValidEmpty(row, col) {
-		return this.isValid(row, col) && this.isEmpty(row, col);
+		return this._isValid(row, col) && this._isEmpty(row, col);
 	}
-	public isEmpty(row, col) {
+	private _isEmpty(row, col) {
 		return this[row][col] == ".";
 	}
-	public isValid(row, col) {
-		return this.isValidRow(row) && this.isValidCol(col);
+	private _isValid(row, col) {
+		return this._isValidRow(row) && this._isValidCol(col);
 	}
-	public isValidCol(col) {
+	private _isValidCol(col) {
 		return (col >= 0 && col < cols);
 	}
-	public isValidRow(row) {
+	private _isValidRow(row) {
 		return (row >= 0 && row < rows + topRows);
 	}
-	public isEmptyRow(row) {
+	private _isEmptyRow(row) {
 		for (var col = 0; col < cols; col++) {
 			if (this[row][col] != ".") return false;
 		} return true;
 	}
-	public isFullRow(row) {
+	private _isFullRow(row) {
 		for (var col = 0; col < cols; col++) {
 			if (this[row][col] == ".") return false;
 		} return true;
 	}
-	public clearRow(row) {
+	private _clearRow(row) {
 		for (var c = 0; c < cols; c++) 
 			this[row][c] = ".";
 	}
-	public collapseRow(row) {
-		var tallest = this.tallestDirtyRow();
+	private _collapseRow(row) {
+		var tallest = this._tallestDirtyRow();
 		while (row > tallest) {
-			this.shiftRowFromTo(row-1, row);
+			this._shiftRowFromTo(row-1, row);
 			row--;
-		} this.clearRow(row); //clear the top row that got shifted down
+		} this._clearRow(row); //clear the top row that got shifted down
 		render.board(); //board_draw.all(); 
 	}
 	public collapseFullRows() {
-		var tallest = this.tallestDirtyRow();
+		var tallest = this._tallestDirtyRow();
 		for (var r = tallest; r < rows + topRows; r++) {
-			if (this.isFullRow(r)) this.collapseRow(r);
+			if (this._isFullRow(r)) this._collapseRow(r);
 		}
 	}
-	public shiftRowFromTo(from, to) {
+	private _shiftRowFromTo(from, to) {
 		for (var c = 0; c < cols; c++) 
 			this[to][c] = this[from][c];
 	}
-	public isDirtyRow(row) { //"dirty" = contains blocks
-		return !this.isEmptyRow(row);
+	private _isDirtyRow(row) { //"dirty" = contains blocks
+		return !this._isEmptyRow(row);
 	}
-	public tallestDirtyRow() {
+	private _tallestDirtyRow() {
 		var r = rows-1;
-		while (this.isDirtyRow(r)) r--;
+		while (this._isDirtyRow(r)) r--;
 		return r+1;
 	}
-	public numDirtyRows() {
-		var tallest = this.tallestDirtyRow();
+	private _numDirtyRows() {
+		var tallest = this._tallestDirtyRow();
 		return rows-tallest; //# of "dirty" rows
 	}
 }

@@ -8,9 +8,8 @@
 *
 ************************************************************************/
 
-- refactor ts classes
-- organize public & private
 - reorg blocks into tetromino parent
+- refactor ts classes
 - fix rendering (esp of tetrominos)
 - manage grid top rows better
 - handle collision/gameover
