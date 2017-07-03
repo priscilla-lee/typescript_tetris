@@ -23,15 +23,16 @@ window.onkeydown = function(e) {
 ************************************************************************/
 var grid = new Grid();
 var game = new Game(grid);
-var board_draw = new Board_Draw(canvas);
-var next_draw = new Next_Draw(canvas);
-var hold_draw = new Hold_Draw(canvas);
+//var board_draw = new Board_Draw(canvas);
+var render = new Render(canvas);
+//var next_draw = new Next_Draw();
+//var hold_draw = new Hold_Draw(canvas);
 
-canvas.height = Math.max(board_draw.height, next_draw.height*1.2) + 100;
-canvas.width = board_draw.width + next_draw.width + hold_draw.width;
+canvas.height = Math.max(Dimensions.board().width /*board_draw.height*/, Dimensions.next().height /*next_draw.height*/*1.2) + 100;
+canvas.width = Dimensions.board().width /*board_draw.width*/ + Dimensions.next().width/*next_draw.width*/ + Dimensions.hold().width; //hold_draw.width;
 
-board_draw.all();
-next_draw.all();
-hold_draw.all();
+render.board(); //board_draw.all();
+render.next(); //next_draw.all();
+render.hold(); //hold_draw.all();
 
 console.log("loaded tetris.js successfully");

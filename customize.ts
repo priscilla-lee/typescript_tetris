@@ -1,5 +1,11 @@
 /************************************************************************
 * CUSTOMIZABLE VARIABLES: cols, rows, size, keys, delay, colors
+	? what keys/controls
+	? style/color/image of tetrominos
+	? ghost or no ghost
+	? how many games at same time? 1 or 2 player
+	? reveal how many "next" blocks
+
 ************************************************************************/
 var key = {
 	play: 13, //enter

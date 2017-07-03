@@ -8,50 +8,12 @@
 *
 ************************************************************************/
 
-render
-	- vars: canvas, cols, rowss
-	+ clear_board()
-	+ clear_hold()
-	+ clear_next()
-	+ update_next(tetromino[] pieces)
-	+ update_hold(tetromino piece)
-	+ update_board(tetromino piece)
-
-tetromino
-	- vars: shape
-	+ move(string dir) "left/right/down"
-	+ fall()
-	+ hard_drop()
-	+ rotate()
-	+ get_prev_coords()
-	? ghost
-	- block
-
-tshape
-	- vars: 
-	+ get_coordinates(string shape)
-
-grid
-	- vars: 
-	+ collapse_full_rows()
-	? manage top rows
-	? manage collison/gameovers
-
-game
-	- vars: render
-	+ start(), play(), pause(), step()
-	+ left(), right(), down()
-	+ hold(), rotate(), drop()
-	? manage speed ramp
-	- random_pieces_generator
-		+ get_next(int number)
-
-tetris
-	? main method
-
-customize/settings
-	? what keys/controls
-	? style/color/image of tetrominos
-	? ghost or no ghost
-	? how many games at same time? 1 or 2 player
-	? reveal how many "next" blocks
+- refactor ts classes
+- organize public & private
+- reorg blocks into tetromino parent
+- fix rendering (esp of tetrominos)
+- manage grid top rows better
+- handle collision/gameover
+- manage speed ramp of game
+- fix getNext() of randompieces
+- modularify customizations/settings
