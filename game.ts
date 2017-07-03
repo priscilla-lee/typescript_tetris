@@ -71,9 +71,9 @@ class Game {
 			this.current.remove(); 
 			render.eraseTetromino(this.current); 
 			//add & draw held
-			this.held.resetPosition();
+			this.held.reset(); //Position();
 			this.held.add(); 
-			this.held.resetGhost(); 
+			//this.held.resetGhost(); 
 			render.drawTetromino(this.held); 
 			//swap
 			var temp = this.held; 
@@ -124,10 +124,12 @@ class Bag {
 	public static MAX_CAPACITY = 7;
 	private _pieces;
 	public constructor() {
-		this._pieces = ["I", "J", "L", "O", "S", "T", "Z"];
+		this._replenish();
 	} 
 	public select() {
-		if (this._pieces.length == 0) this._replenish();
+		if (this._pieces.length == 0) {
+			this._replenish();
+		}
 		var randomIndex = Math.floor(Math.random() * this._pieces.length);
 		var selected = this._pieces[randomIndex];
 		this._pieces.splice(randomIndex, 1);

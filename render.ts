@@ -184,23 +184,32 @@ class Render {
 				}
 			}
 		} //erase 5 times to eliminate blur trails
-		tetromino.eraseGhost();
+		render._eraseGhost(tetromino);
 	}
 	public drawTetromino(tetromino: Tetromino) {
-		tetromino.drawGhost();
+		render._drawGhost(tetromino);
 		for (var i in tetromino.blocks) {
-			//this.blocks[i].draw();
 			var block = tetromino.blocks[i];
 			if (block.r >= NUM_TOP_ROWS) {
 				render.block(block.r, block.c, block.T.shape);
 			}
 		}
 	}
-	public drawGhost(ghost: Ghost) {
+	private _eraseGhost(tetromino: Tetromino) {
+		var ghostBlocks = tetromino.getGhost().blocks;
+		for (var i in ghostBlocks) {
+			var g = ghostBlocks[i]
+			render.block(g.r, g.c, "."); 
+		}
 
 	}
-	public eraseGhost(ghost: Ghost) {
-		
+	private _drawGhost(tetromino: Tetromino) {
+		var ghostBlocks = tetromino.getGhost().blocks;
+		for (var i in ghostBlocks) {
+			var g = ghostBlocks[i];
+			render.block(g.r, g.c, "ghost");
+		}
+
 	}
 }
 

@@ -5,20 +5,21 @@
 class Tetromino {
 	public shape;
 	public blocks;
-	public ghostBlocks;
+	public ghost;
 	public constructor(shape) {
 		this.shape = shape;
 		this.blocks = Tetromino.getBlocks(this.shape, this);
-		this.ghostBlocks = Tetromino.getBlocks("ghost", this);
+		this.ghost = new Ghost(this);
 	}
-	public resetPosition = function() {
+	public reset() {  //reset position
 		this.blocks = Tetromino.getBlocks(this.shape, this);
+		this.ghost.reset(); 
 	}
 	public contains(r,c) {
+		//var inGhost = this.ghost.contains(r,c);
 		for (var i in this.blocks) {
 			var inBlocks = this.blocks[i].equals(r,c);
-			var inGhost = this.ghostBlocks[i].equals(r,c);
-			if (inBlocks || inGhost) return true;
+			if (inBlocks) return true;
 		} return false;
 	}
 	private _canMove(dir) {
@@ -69,35 +70,8 @@ class Tetromino {
 	public drop() {
 		while(this.fall());
 	}
-	public eraseGhost() {
-		this.calcGhost();
-		for (var i in this.ghostBlocks) {
-			var g = this.ghostBlocks[i]
-			render.block(g.r, g.c, "."); 
-		}
-	}
-	public drawGhost() {
-		this.calcGhost();
-		for (var i in this.ghostBlocks) {
-			var g = this.ghostBlocks[i];
-			render.block(g.r, g.c, "ghost");
-		}
-	}
-	public resetGhost() {
-		this.ghostBlocks = Tetromino.getBlocks("ghost", this);
-	}
-	public calcGhost() {
-		var ghost = []; //make deep copy of blocks
-		for (var i in this.blocks) { 
-			var b = this.blocks[i];
-			ghost.push(new Block(b.r, b.c, this));
-		} 
-		outer: while (true) { //hard drop
-			for (var i in ghost) //if all can fall, make all fall
-				if (!ghost[i].canMove("down")) break outer; 
-			for (var i in ghost) ghost[i].r++; 				
-		} 
-		this.ghostBlocks = ghost; //update ghostBlocks
+	public getGhost() {
+		return this.ghost.calculate();
 	}
 	public static getBlocks(shape, T) {
 		//center, top position
@@ -120,7 +94,34 @@ class Tetromino {
 }
 
 class Ghost {
-
+	public blocks;
+	private _tetromino;
+	public constructor(tetromino) {
+		this._tetromino = tetromino;
+	}
+	public calculate() {
+		var ghost = []; //make deep copy of tetromino blocks
+		for (var i in this._tetromino.blocks) { 
+			var b = this._tetromino.blocks[i];
+			ghost.push(new Block(b.r, b.c, this._tetromino));
+		} 
+		outer: while (true) { //hard drop
+			for (var i in ghost) //if all can fall, make all fall
+				if (!ghost[i].canMove("down")) break outer; 
+			for (var i in ghost) ghost[i].r++; 				
+		} 
+		this.blocks = ghost; //update ghostBlocks
+		return this;
+	}
+	public reset() { //position
+		this.blocks = Tetromino.getBlocks("ghost", this._tetromino);
+	}
+	public contains(r,c) {
+		for (var i in this.blocks) {
+			var inGhost = this.blocks[i].equals(r,c);
+			if (inGhost) return true;
+		} return false;
+	}
 }
 
 /************************************************************************
@@ -145,7 +146,7 @@ class Block {
 		if (dir == "down") {newR = this.r+1;}
 		if (dir == "left") {newC = this.c-1;}
 		if (dir == "right") {newC = this.c+1;}	
-		return (this.T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
+		return (this.T.contains(newR, newC) || this.T.ghost.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
 	public move(dir) {
 		if (dir == "down") {this.r++;}
@@ -157,7 +158,7 @@ class Block {
 		var pivot = this.T.blocks[0]; //first block is pivot
 		var newR = (this.c - pivot.c) + pivot.r;    
 		var newC = -(this.r - pivot.r) + pivot.c;		
-		return (this.T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
+		return (this.T.contains(newR, newC) || this.T.ghost.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
 	public rotate() {
 		if (this.T.shape == "O") return; //squares don't rotate
