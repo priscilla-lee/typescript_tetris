@@ -72,5 +72,4 @@ function getColor(shape: Shape): Color {
 // 	"ghost": {outline: "black", fill: "white", shade: "white", highlight: "white"},
 // };
 
-
 console.log("loaded customize.js successfully");

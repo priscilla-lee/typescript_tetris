@@ -1,5 +1,3 @@
-
-
 /************************************************************************
 * TETROMINO: stores shape, an array of blocks, and methods
 *			 contains, canMove, move, canRotate, rotate, add, & remove
