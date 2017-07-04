@@ -59,7 +59,7 @@ class Grid {
 			this._shiftRowFromTo(row-1, row);
 			row--;
 		} this._clearRow(row); //clear the top row that got shifted down
-		render.updateBoard(this);
+		// render.updateBoard(this);
 	}
 
 	public collapseFullRows(): void {

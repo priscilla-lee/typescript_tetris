@@ -10,8 +10,9 @@ class Game {
 	public held: Tetromino;
 	public limitHold: boolean; // limit: can't swap twice in a row
 	public grid: Grid;
+	public render: Render;
 
-	public constructor(grid: Grid) {
+	public constructor(render: Render) {
 		this.started = false;
 		this.loop = null;
 		this.playing = false;
@@ -19,7 +20,8 @@ class Game {
 		this.current;
 		this.held;
 		this.limitHold = false;
-		this.grid = grid;
+		this.grid = new Grid();
+		this.render = render;
 	}
 
 	public start(): void {
@@ -40,33 +42,36 @@ class Game {
 
 	public step(): void {
 		//self.current.drawGhost();
-		render.drawTetromino(this.current); 
-		if (!this.current.fall()) this._nextPiece();	
-		//render.next();
+		this.render.eraseTetromino(this.current); 
+		if (!this.current.fall()) {
+			this._nextPiece();	
+		}
+		this.render.drawTetromino(this.current); 
 	}
 
 	private _nextPiece(): void {
 		var next: Shape = this.randomPieces.getNext();
-		this.current = new Tetromino(next);
+		this.current = new Tetromino(next, this.grid);
 		this.current.add(); 
-		render.drawTetromino(this.current); 
+		this.render.drawTetromino(this.current); 
 		this.limitHold = false;
 		this.grid.collapseFullRows();
+		this.render.updateBoard(this.grid);
 		//this.current.drawGhost();
-		render.drawTetromino(this.current);
-		render.updateNext(this.randomPieces.getList());
+		this.render.drawTetromino(this.current);
+		this.render.updateNext(this.randomPieces.getList());
 	}
 
 	public move(dir: Direction): void {
-		// render.eraseTetromino(this.current); 
+		this.render.eraseTetromino(this.current); 
 		this.current.move(dir);
-		// render.drawTetromino(this.current); 
+		this.render.drawTetromino(this.current); 
 	}
 
 	public rotate(): void {
-		// render.eraseTetromino(this.current); 
+		this.render.eraseTetromino(this.current);
 		this.current.rotate();
-		// render.drawTetromino(this.current); 
+		this.render.drawTetromino(this.current); 
 	}
 
 	public drop(): void {
@@ -82,11 +87,11 @@ class Game {
 		if (this.held) {
 			//remmove & erase current
 			this.current.remove(); 
-			render.eraseTetromino(this.current); 
+			this.render.eraseTetromino(this.current); 
 			//add & draw held
 			this.held.reset();
 			this.held.add(); 
-			render.drawTetromino(this.held); 
+			this.render.drawTetromino(this.held); 
 			//swap
 			var temp: Tetromino = this.held; 
 			this.held = this.current;
@@ -94,20 +99,20 @@ class Game {
 		} else {
 			//erase current & put in hold
 			this.current.remove(); 
-			render.eraseTetromino(this.current); 
+			this.render.eraseTetromino(this.current); 
 			this.held = this.current;
 			//draw from next list
 			var next: Shape = this.randomPieces.getNext();
-			this.current = new Tetromino(next);
+			this.current = new Tetromino(next, this.grid);
 			this.current.add(); 
-			render.drawTetromino(this.current); 
+			this.render.drawTetromino(this.current); 
 		}
-		render.updateHold(this.held.shape);
+		this.render.updateHold(this.held.shape);
 	}
 
 	public keyPressed(): void {
 		//this.current.drawGhost();
-		render.drawTetromino(this.current); 
+		this.render.drawTetromino(this.current); 
 	}
 }
 

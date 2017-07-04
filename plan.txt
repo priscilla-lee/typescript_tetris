@@ -1,19 +1,19 @@
-/************************************************************************
-* WHAT TO WORK ON: wall/floor kicks, fix gameover top death,
-*		scorekeeping to unlock features (themes presets, square image), 
-*		add music, 2-piece-playing, levels speeding up, restructure code for
-*		self-contained game (clean up code) 
-*		higher points unlock customize playing + controls for both hands! gravity
-*		fine-tuning? fix speed when arrow keys are held down, and then "AI" fun
-*
-************************************************************************/
-
-- refactor rendering (esp of tetrominos)
-- refactor ghost management
-- refactor dependencies
-- clean of global namespace, organize final consts?
-- manage grid top rows better
-- handle collision/gameover
-- manage speed ramp of game
-- fix getNext() of randompieces
-- modularify customizations/settings
+- tasks
+	- refactor styles (color & squares)
+	- store tetromino piece coordinates
+	- manage grid top rows better
+	- handle collision/gameover
+- improve/features
+	- manage speed ramp of game (level speed)
+	- wall/floor kicks
+	- scorekeeping to unlock features
+	- styles: themes presets, square images
+	- add music
+	- ramp up speed when arrow keys held down
+	- 2-piece-playing in one grid (one person)
+	- 2 games on one screen (one/two person)
+	- weird tetromino shapes
+	- AI?
+- bugs
+	- pieces disappearing into each other (when using images)
+	- purple piece spawns weirdly (when using enlarged grid)
