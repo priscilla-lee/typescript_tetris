@@ -1,11 +1,3 @@
-enum Direction {
-	Up, Down, Left, Right
-}
-
-enum Shape {
-	I, J, L, O, S, T, Z, Ghost, Empty
-}
-
 /************************************************************************
 * GAME: game logic, loop, start, play, pause, etc
 ************************************************************************/
@@ -35,20 +27,24 @@ class Game {
 		this._nextPiece();
 		this.play();
 	}
+
 	public play(): void {
-		this.loop = setInterval(() => this.step(), delay);
+		this.loop = setInterval(() => this.step(), DELAY);
 		this.playing = true;
 	}
+
 	public pause(): void {
 		clearInterval(this.loop);
 		this.playing = false;
 	}
+
 	public step(): void {
 		//self.current.drawGhost();
 		render.drawTetromino(this.current); 
 		if (!this.current.fall()) this._nextPiece();	
-		render.next();
+		//render.next();
 	}
+
 	private _nextPiece(): void {
 		var next: Shape = this.randomPieces.getNext();
 		this.current = new Tetromino(next);
@@ -57,18 +53,27 @@ class Game {
 		this.limitHold = false;
 		this.grid.collapseFullRows();
 		//this.current.drawGhost();
-		render.drawTetromino(this.current); 
+		render.drawTetromino(this.current);
+		render.updateNext(this.randomPieces.getList());
 	}
+
 	public move(dir: Direction): void {
+		// render.eraseTetromino(this.current); 
 		this.current.move(dir);
+		// render.drawTetromino(this.current); 
 	}
+
 	public rotate(): void {
+		// render.eraseTetromino(this.current); 
 		this.current.rotate();
+		// render.drawTetromino(this.current); 
 	}
+
 	public drop(): void {
 		this.current.drop();
 		this._nextPiece();
 	}
+
 	public hold(): void {
 		//limit hold swaps
 		if (this.limitHold) return; 
@@ -97,10 +102,10 @@ class Game {
 			this.current.add(); 
 			render.drawTetromino(this.current); 
 		}
+		render.updateHold(this.held.shape);
 	}
+
 	public keyPressed(): void {
-		render.next(); 
-		render.hold();  
 		//this.current.drawGhost();
 		render.drawTetromino(this.current); 
 	}
@@ -112,6 +117,7 @@ class Game {
 class RandomPieces {
 	private _pieces: Shape[];
 	private _bag: Shape[];
+
 	public constructor() {
 		this._bag = [];
 		this._pieces = [];
@@ -121,6 +127,7 @@ class RandomPieces {
 			this._pieces.push(this._select());
 		}
 	}
+
 	private _select(): Shape { // pieces one at a time from bag
 		if (this._bag.length == 0) {
 			this._bag = [Shape.I, Shape.J, Shape.L, Shape.O, Shape.S, Shape.T, Shape.Z];
@@ -130,15 +137,15 @@ class RandomPieces {
 		this._bag.splice(randomIndex, 1);
 		return selected;
 	}
+
 	public getNext(): Shape { 
 		// remove first piece from list, shift everything down, add a new piece (maintain number)
 		var next: Shape = this._pieces.shift();
 		this._pieces.push(this._select());
 		return next;
 	}
+
 	public getList(): Shape[] {
 		return this._pieces;		
 	}
 }
-
-console.log("loaded game.js successfully");

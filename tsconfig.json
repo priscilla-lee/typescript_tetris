@@ -3,11 +3,15 @@
         "outFile": "final/compiled.js"
     },
     "files": [
-        "customize.ts",
+        "constants.ts",
+        "style.ts",
         "game.ts",
         "grid.ts",
+        "tetromino.ts",
+        "canvas_util.ts",
+        "dimensions.ts",
+        "components.ts",
         "render.ts",
-        "tetris.ts",
-        "tetromino.ts"
+        "tetris.ts"
     ]
 }

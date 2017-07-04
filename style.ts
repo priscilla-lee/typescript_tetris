@@ -7,19 +7,6 @@
 	? reveal how many "next" blocks
 
 ************************************************************************/
-var key = {
-	play: 13, //enter
-	pause: 13, //enter
-	left: 37,
-	right: 39,
-	down: 40,
-	rotate: 38, //up
-	drop: 32, //space
-	hold: 16 //shift
-}
-
-var delay = 300; //milliseconds
-
 class Color {
 	public outline: string;
 	public fill: string;
@@ -72,4 +59,26 @@ function getColor(shape: Shape): Color {
 // 	"ghost": {outline: "black", fill: "white", shade: "white", highlight: "white"},
 // };
 
-console.log("loaded customize.js successfully");
+
+class BlockStyle {
+	public static original = function(element: any, blockDim: BlockDimension, x: number, y: number, shape: Shape): void {
+		var size: number = blockDim.size;
+		var weight: number = blockDim.weight;
+
+		var otln: string = getColor(shape).outline;
+		var fill: string = getColor(shape).fill;
+		var shd: string = getColor(shape).shade;
+		var hlgt: string = getColor(shape).highlight;
+		var twkl: string = getColor(shape).twinkle;
+		
+		CanvasUtil.rect(element, x, y, size, size, 0, otln, otln); //outline
+		CanvasUtil.rect(element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, 0, fill, fill); //outer rectangle
+		CanvasUtil.rect(element, x+(size*0.25), y+(size*0.25), size*0.5, size*0.5, weight, shd, hlgt); //inner rectangle
+		CanvasUtil.rect(element, x+(size*0.1), y+(size*0.1), size*0.1, size*0.1, 0, twkl, twkl); //twinkle
+	}
+	
+	public static image = function(element: any, img: string, x: number, y: number, w: number, h: number): void {
+	    var ctx = element.getContext("2d");
+	   		ctx.drawImage(img, x, y, w, h);
+	}
+}

@@ -5,77 +5,100 @@
 class Tetromino {
 	public shape: Shape;
 	public blocks: Block[];
-	public ghost: Ghost;
+	private _ghost: Ghost;
+
 	public constructor(shape: Shape) {
 		this.shape = shape;
 		this.blocks = Tetromino.getBlocks(this.shape, this);
-		this.ghost = new Ghost(this);
+		this._ghost = new Ghost(this);
 	}
+
 	public reset(): void {  //reset position
 		this.blocks = Tetromino.getBlocks(this.shape, this);
-		this.ghost.reset(); 
+		this._ghost.reset(); 
 	}
+
 	public contains(r: number, c: number): boolean {
-		var inGhost: boolean = this.ghost.contains(r,c);
+		var inGhost: boolean = this._ghost.contains(r,c);
 		for (var i in this.blocks) {
 			var inBlocks = this.blocks[i].equals(r,c);
-			if (inBlocks || inGhost) return true;
+			if (inBlocks || inGhost) {
+				return true;
+			}
 		} return false;
 	}
+
 	private _canMove(dir: Direction): boolean {
 		for (var i in this.blocks) {
-			if (!this.blocks[i].canMove(dir)) return false;
+			if (!this.blocks[i].canMove(dir)) {
+				return false;
+			}
 		} return true;
 	}
+
 	public move(dir: Direction): boolean {
 		if (this._canMove(dir)) {
 			this.remove(); 
 			render.eraseTetromino(this); 
-			for (var i in this.blocks) this.blocks[i].move(dir);
+			for (var i in this.blocks) {
+				this.blocks[i].move(dir);
+			}
 			this.add(); 
 			render.drawTetromino(this); 
 			return true;
-		} //else console.log("can't move " + dir);
+		}
 		return false;
 	}
+
 	private _canRotate(): boolean {
 		for (var b in this.blocks) {
-			if (!this.blocks[b].canRotate()) return false;
+			if (!this.blocks[b].canRotate()) {
+				return false;
+			}
 		} return true;
 	}
+
 	public rotate(): void {
 		if (this._canRotate()) {
 			this.remove(); 
 			render.eraseTetromino(this); 
-			for (var b in this.blocks) this.blocks[b].rotate();
+			for (var b in this.blocks) {
+				this.blocks[b].rotate();
+			}
 			this.add(); 
 			render.drawTetromino(this); 
-		} //else console.log("can't rotate");
+		}
 	}
+
 	public add(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
 			grid.set(b.r, b.c, this.shape);
 		}
 	}
+
 	public remove(): void {
 		for (var i in this.blocks) {
 			var b = this.blocks[i];
 			grid.set(b.r, b.c, Shape.Empty);
 		}
 	}
+
 	public fall(): boolean {
 		return this.move(Direction.Down);
 	}
+
 	public drop(): void {
 		while(this.fall());
 	}
+
 	public getGhost(): Ghost {
-		return this.ghost.calculate();
+		return this._ghost.update();
 	}
+
 	public static getBlocks(shape: Shape, T: Tetromino): Block[] {
 		//center, top position
-		var mid: number = Math.floor(cols/2)-1; //integer division, truncates
+		var mid: number = Math.floor(COLS/2)-1; //integer division, truncates
 		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos
 
 		var i: number = shift;
@@ -108,26 +131,35 @@ class Tetromino {
 class Ghost {
 	public blocks: Block[];
 	private _tetromino: Tetromino;
+
 	public constructor(tetromino: Tetromino) {
 		this._tetromino = tetromino;
 	}
-	public calculate(): Ghost {
-		var ghost: Block[] = []; //make deep copy of tetromino blocks
+
+	public update(): Ghost { //calculates, updates, and returns Ghost
+		// deep copy
+		var ghost: Block[] = []; 
 		for (var i in this._tetromino.blocks) { 
 			var b = this._tetromino.blocks[i];
 			ghost.push(new Block(b.r, b.c, this._tetromino));
 		} 
-		outer: while (true) { //hard drop
+
+		//hard drop
+		outer: while (true) { 
 			for (var i in ghost) //if all can fall, make all fall
 				if (!ghost[i].canMove(Direction.Down)) break outer; 
 			for (var i in ghost) ghost[i].r++; 				
 		} 
-		this.blocks = ghost; //update ghostBlocks
+
+		//update ghostBlocks
+		this.blocks = ghost; 
 		return this;
 	}
+
 	public reset(): void { //position
 		this.blocks = Tetromino.getBlocks(Shape.Ghost, this._tetromino);
 	}
+
 	public contains(r: number, c: number): boolean {
 		for (var i in this.blocks) {
 			var inGhost = this.blocks[i].equals(r,c);
@@ -144,42 +176,64 @@ class Block {
 	public r: number;
 	public c: number;
 	private _T: Tetromino;
+
 	public constructor(row: number, col: number, T: Tetromino) {
 		this.r = row;
 		this.c = col;
 		this._T = T;
 	}
+
 	public equals(r: number, c: number): boolean {
 		return (this.r==r && this.c==c);		
 	}
+
 	public canMove(dir: Direction): boolean {
 		var newR: number = this.r;
 		var newC: number = this.c;
-		if (dir == Direction.Down) {newR = this.r+1;}
-		if (dir == Direction.Left) {newC = this.c-1;}
-		if (dir == Direction.Right) {newC = this.c+1;}	
+
+		switch (dir) {
+			case Direction.Down: newR = this.r+1; break;
+			case Direction.Left: newC = this.c-1; break;
+			case Direction.Right: newC = this.c+1; break;
+		}
+
 		return (this._T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
+
 	public move(dir: Direction): void {
-		if (dir == Direction.Down) {this.r++;}
-		if (dir == Direction.Left) {this.c--;}
-		if (dir == Direction.Right) {this.c++;}
+		switch (dir) {
+			case Direction.Down: this.r++; break;
+			case Direction.Left: this.c--; break;
+			case Direction.Right: this.c++; break;
+		}
 	}
+
 	public canRotate(): boolean {
-		if (this._T.shape == Shape.O) return true; //squares don't rotate
-		var pivot: Block = this._T.blocks[0]; //first block is pivot
+		if (this._T.shape == Shape.O) {
+			return true; //squares don't rotate
+		}
+
+		//first block is pivot
+		var pivot: Block = this._T.blocks[0]; 
+
 		var newR: number = (this.c - pivot.c) + pivot.r;    
 		var newC: number = -(this.r - pivot.r) + pivot.c;		
+
 		return (this._T.contains(newR, newC) || grid.isValidEmpty(newR, newC));
 	}
+
 	public rotate(): void {
-		if (this._T.shape == Shape.O) return; //squares don't rotate
-		var pivot: Block = this._T.blocks[0]; //first block is pivot
+		if (this._T.shape == Shape.O) {
+			return; //squares don't rotate
+		}
+
+		//first block is pivot
+		var pivot: Block = this._T.blocks[0]; 
+
 		var newC: number = -(this.r - pivot.r) + pivot.c;
-		var newR: number = (this.c - pivot.c) + pivot.r;    
+		var newR: number = (this.c - pivot.c) + pivot.r;   
+
 		this.c = newC;
 		this.r = newR;
 	}
 }
-
-console.log("loaded tetromino.js successfully");
