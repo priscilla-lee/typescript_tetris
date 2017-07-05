@@ -1,12 +1,12 @@
 class Hold {
-	private static _bezel: BezelDimension;
-	private static _container: ContainerDimension;
-	private static _block: BlockDimension;
+	private _bezel: BezelDimension;
+	private _container: ContainerDimension;
+	private _block: BlockDimension;
 
-	private static _construct() {
-		var bezel = new BezelDimension(Component.Hold);
-		var container = new ContainerDimension(Size.Medium);
-		var block = new BlockDimension(Size.Medium);
+	public constructor() {
+		var bezel = BezelDimension.hold();
+		var container = ContainerDimension.medium();
+		var block = BlockDimension.medium();
 
 		// set bezel height & width
 		bezel.height = container.box + 2*bezel.thickness;
@@ -17,78 +17,63 @@ class Hold {
 		container.y = bezel.thickness + bezel.y;
 
 		// store dimensions
-		Hold._bezel = bezel;
-		Hold._container = container;
-		Hold._block = block;
+		this._bezel = bezel;
+		this._container = container;
+		this._block = block;
 	}
 
-	public static bezel(): BezelDimension {
-		if (Hold._bezel == undefined) {
-			Hold._construct();
-		}
-		return Hold._bezel;
+	public bezel(): BezelDimension {
+		return this._bezel;
 	}
 
-	public static container(): ContainerDimension {
-		if (Hold._container == undefined) {
-			Hold._construct();
-		}
-		return Hold._container;
+	public container(): ContainerDimension {
+		return this._container;
 	}
 
-	public static block (): BlockDimension { 
-		if (Hold._block == undefined) {
-			Hold._construct();
-		}
-		return Hold._block;
+	public block (): BlockDimension { 
+		return this._block;
 	}
 }
 
 class Board {
-	private static _bezel: BezelDimension;
-	private static _block: BlockDimension;
+	private _bezel: BezelDimension;
+	private _block: BlockDimension;
 
-	private static _construct() {
-		var bezel = new BezelDimension(Component.Board); 
-		var block = new BlockDimension(Size.Large); 
+	public constructor(numCols: number, numRows: number) {
+		var bezel = BezelDimension.board();
+		var block = BlockDimension.large();
 
 		// set bezel height & width
-		bezel.height = ROWS*block.size + 2*bezel.thickness;
-		bezel.width = COLS*block.size + 2*bezel.thickness;
+		bezel.height = numRows*block.size + 2*bezel.thickness;
+		bezel.width = numCols*block.size + 2*bezel.thickness;
 
 		// store dimensions
 		this._bezel = bezel;
 		this._block = block;
 	}
 
-	public static bezel(): BezelDimension {
-		if (Board._bezel == undefined) {
-			Board._construct();
-		}
+	public bezel(): BezelDimension {
 		return this._bezel;
 	}
 
-	public static block (): BlockDimension { 
-		if (Board._block == undefined) {
-			Board._construct();
-		}
+	public block(): BlockDimension {
 		return this._block;
 	}
 }
 
 class Next {
-	private static _bezel: BezelDimension;
-	private static _mediumContainer: ContainerDimension;
-	private static _smallContainer: ContainerDimension;
-	private static _mediumBlock: BlockDimension;
-	private static _smallBlock: BlockDimension;
+	private _bezel: BezelDimension;
+	private _mediumContainer: ContainerDimension;
+	private _smallContainer: ContainerDimension;
+	private _mediumBlock: BlockDimension;
+	private _smallBlock: BlockDimension;
 
-	private static _construct() {
-		var bezel = new BezelDimension(Component.Next); 
-		var mediumContainer = new ContainerDimension(Size.Medium); 
-		var smallContainer = new ContainerDimension(Size.Small); 
-		var mediumBlock = new BlockDimension(Size.Medium); 
-		var smallBlock = new BlockDimension(Size.Small); 	
+	public constructor(numCols: number) {
+		var bezel = BezelDimension.next(numCols); 
+		var mediumContainer = ContainerDimension.medium();
+		var smallContainer = ContainerDimension.small();
+		var mediumBlock = BlockDimension.medium();
+		var smallBlock = BlockDimension.small();	
 
 		// set bezel height & width
 		bezel.height = mediumContainer.box*NUM_NEXT_PIECES + 2*bezel.thickness + mediumContainer.offset;
@@ -109,23 +94,14 @@ class Next {
 		this._smallBlock = smallBlock;
 	}
 
-	public static bezel(): BezelDimension {
-		if (Next._bezel == undefined) {
-			Next._construct();
-		}
+	public bezel(): BezelDimension {
 		return this._bezel;
 	}
 
-	public static container(index: number): ContainerDimension {
+	public container(index: number): ContainerDimension {
 		if (index == 0) {
-			if (Next._mediumContainer == undefined) {
-				Next._construct();
-			}
 			return this._mediumContainer;
 		} else {
-			if (Next._smallContainer == undefined) {
-				Next._construct();
-			}
 			var smallContainer = this._smallContainer;
 			var mediumContainer = this._mediumContainer;
 			var bezel = this._bezel;
@@ -135,32 +111,29 @@ class Next {
 		}
 	}
 
-	public static block (index: number): BlockDimension { 
+	public block(index: number): BlockDimension {
 		if (index == 0) {
-			if (Next._mediumBlock == undefined) {
-				Next._construct();
-			}
 			return this._mediumBlock;
 		} else {
-			if (Next._smallBlock == undefined) {
-				Next._construct();
-			}
 			return this._smallBlock;
 		}
 	}
 }
 
-class CanvasDimensions {
-	public static height(): number {
-		var board = Board.bezel().height; 
-		var next = Next.bezel().height;
-		return Math.max(board, next);
+class Canvas {
+	private _width: number;
+	private _height: number;
+
+	public constructor(board: Board, next: Next, hold: Hold) {
+		this._width = board.bezel().width + next.bezel().width + hold.bezel().width; 
+		this._height = Math.max(board.bezel().height, next.bezel().height);
 	}
 
-	public static width(): number {
-		var board = Board.bezel().width;
-		var next = Next.bezel().width; 
-		var hold = Hold.bezel().width;
-		return board + next + hold; 
-	}
+	public width(): number {
+		return this._width;
+	}		
+
+	public height(): number {
+		return this._height;
+	}	
 }

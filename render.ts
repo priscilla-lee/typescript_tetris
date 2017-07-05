@@ -1,16 +1,31 @@
 class Render {
 	private _element: any;
+	private _board: Board;
+	private _next: Next;
+	private _hold: Hold;
+	private _canvas: Canvas;
+	public numCols: number;
+	public numRows: number;
 
-	public constructor(canvas: any) {
+	public constructor(canvas: any, numCols: number, numRows: number) {
+		this.numCols = numCols;
+		this.numRows = numRows; 
+
+		// set up components
+		this._board = new Board(numCols, numRows);
+		this._next = new Next(numCols);
+		this._hold = new Hold();
+		this._canvas = new Canvas(this._board, this._next, this._hold);
+
 		// set up canvas
 		this._element = canvas;
-		canvas.height = CanvasDimensions.height()
-		canvas.width = CanvasDimensions.width(); 
+		canvas.height = this._canvas.height(); 
+		canvas.width = this._canvas.width(); 
 
 		// draw empty frame
-		this._drawBezel(Board.bezel());
-		this._drawBezel(Hold.bezel());
-		this._drawBezel(Next.bezel()); 
+		this._drawBezel(this._board.bezel());
+		this._drawBezel(this._hold.bezel());
+		this._drawBezel(this._next.bezel());
 
 		// draw cleared components
 		this._clearBoard();
@@ -19,41 +34,41 @@ class Render {
 	}
 
 	private _clearBoard(): void {
-		for (var r = NUM_TOP_ROWS; r < ROWS + NUM_TOP_ROWS; r++) {
-			for (var c = 0; c < COLS; c++) 
+		for (var r = NUM_TOP_ROWS; r < this.numRows + NUM_TOP_ROWS; r++) {
+			for (var c = 0; c < this.numCols; c++) 
 				this._drawGridBlock(r, c, Shape.Empty);
 		}	
 	}
 	
 	private _clearNext(): void {
-		this._drawContainer(Next.container(0), Next.block(0), Shape.Empty); // medium box
+		this._drawContainer(this._next.container(0), this._next.block(0), Shape.Empty); // medium box
 		//draw smaller boxes (skip the first one)
 		for (var i = 1; i < NUM_NEXT_PIECES; i++) {
-			this._drawContainer(Next.container(i), Next.block(i), Shape.Empty);
+			this._drawContainer(this._next.container(i), this._next.block(i), Shape.Empty);
 		}
 	}
 
 	private _clearHold(): void {
-		this._drawContainer(Hold.container(), Hold.block(), Shape.Empty);
+		this._drawContainer(this._hold.container(), this._hold.block(), Shape.Empty);
 	}
 
 	public updateBoard(grid: Grid): void {
-		for (var r = NUM_TOP_ROWS; r < ROWS + NUM_TOP_ROWS; r++) {
-			for (var c = 0; c < COLS; c++) 
+		for (var r = NUM_TOP_ROWS; r < this.numRows + NUM_TOP_ROWS; r++) {
+			for (var c = 0; c < this.numCols; c++) 
 				this._drawGridBlock(r, c, grid.get(r,c));
 		}	
 	}
 
 	public updateNext(shapes: Shape[]): void {
-		this._drawContainer(Next.container(0), Next.block(0), shapes[0]); // medium box
+		this._drawContainer(this._next.container(0), this._next.block(0), shapes[0]); // medium box
 		//draw smaller boxes (skip the first one)
 		for (var i = 1; i < shapes.length; i++) {
-			this._drawContainer(Next.container(i), Next.block(i), shapes[i]);
+			this._drawContainer(this._next.container(i), this._next.block(i), shapes[i]);
 		}
 	}
 
 	public updateHold(shape: Shape): void {
-		this._drawContainer(Hold.container(), Hold.block(), shape); 
+		this._drawContainer(this._hold.container(), this._hold.block(), shape); 
 	}
 
 	public drawTetromino(tetromino: Tetromino): void {
@@ -95,8 +110,8 @@ class Render {
 	}
 	
 	private _drawGridBlock(row: number, col: number, shape: Shape): void {
-		var bezel: BezelDimension = Board.bezel();
-		var block: BlockDimension = Board.block();
+		var bezel: BezelDimension = this._board.bezel();
+		var block: BlockDimension = this._board.block();
 
 		var gridX: number = bezel.thickness + bezel.x; 
 		var gridY: number = bezel.thickness + bezel.y;

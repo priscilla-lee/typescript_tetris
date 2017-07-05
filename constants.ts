@@ -1,22 +1,9 @@
-var COLS: number = 10; //width
-var ROWS: number = 20; //height
 var UNIT: number = 20; //size of block on grid
 
 var DELAY = 300; //milliseconds
 
 var NUM_TOP_ROWS: number = 5; //invisible rows at top, not shown
 var NUM_NEXT_PIECES: number = 5; //must be less than 7
-
-var KEY = {
-	play: 13, //enter
-	pause: 13, //enter
-	left: 37,
-	right: 39,
-	down: 40,
-	rotate: 38, //up
-	drop: 32, //space
-	hold: 16 //shift
-}
 
 enum Component { // used for bezels
 	Board, Hold, Next
@@ -40,4 +27,62 @@ enum Shape {
 	Z = "Z", 
 	Ghost = "ghost", 
 	Empty = "."
+}
+
+// enum to capture key codes
+enum Keyboard {
+	Enter = 13,
+	LeftArrow = 37,
+	UpArrow = 38,
+	RightArrow = 39,
+	DownArrow = 40,
+	Space = 32,
+	Shift = 16,
+	Tab = 9,
+	A = 65,
+	W = 87,
+	S = 83,
+	D = 68,
+	P = 80,
+}
+
+enum KeyControls {
+	Default,
+	Alternative
+}
+
+class Keys {
+	public play: number;
+	public pause: number;
+	public left: number;
+	public right: number;
+	public down: number;
+	public rotate: number;
+	public drop: number;
+	public hold: number;
+
+	public constructor(keyControls: KeyControls) {
+		switch(keyControls) {
+			case KeyControls.Default:
+				this.play = Keyboard.Enter;
+				this.pause = Keyboard.Enter;
+				this.left = Keyboard.LeftArrow;
+				this.right = Keyboard.RightArrow;
+				this.down = Keyboard.DownArrow;
+				this.rotate = Keyboard.UpArrow;
+				this.drop = Keyboard.Space;
+				this.hold = Keyboard.Shift;	
+				break;
+			case KeyControls.Alternative:
+				this.play = Keyboard.Enter;
+				this.pause = Keyboard.Enter;
+				this.left = Keyboard.A;
+				this.right = Keyboard.D;
+				this.down = Keyboard.S;
+				this.rotate = Keyboard.W;
+				this.drop = Keyboard.Space;
+				this.hold = Keyboard.Shift;	
+				break;
+		}	
+	}
 }

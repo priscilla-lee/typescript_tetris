@@ -1,65 +1,52 @@
 /************************************************************************
+* KEYBOARD INPUT: onkeydown
+************************************************************************/
+function gameKeyPress(game: Game, e: any): void {
+	//any key to start game
+	if (!game.started) {
+		game.start(); return;
+	} 
+
+	//toggle play & pause
+	if (e.keyCode == game.keys.play || e.keyCode == game.keys.pause) {
+		if (game.playing) game.pause();
+		else game.play();
+	} 
+
+	//only listen to keys if game is playing
+	if (game.playing) { 
+		if (e.keyCode == game.keys.down) {game.move(Direction.Down);} 
+		if (e.keyCode == game.keys.left) {game.move(Direction.Left);} 
+		if (e.keyCode == game.keys.right) {game.move(Direction.Right);} 
+		if (e.keyCode == game.keys.rotate) {game.rotate();}
+		if (e.keyCode == game.keys.drop) {game.drop();}
+		if (e.keyCode == game.keys.hold) {game.hold();}
+		game.keyPressed(); //anytime key is pressed
+	}
+}
+
+/************************************************************************
 * SET UP THE GAME: create necessary game variables & draw
 ************************************************************************/
 function main(): void {
 	// set up game 1
-	var render = new Render(canvas1);
-	var game = new Game(render);
+	var numCols: number = 10;
+	var numRows: number = 20;
+	var keys: Keys = new Keys(KeyControls.Alternative); 
+	var render: Render = new Render(canvas, numCols, numRows);
+	var game: Game = new Game(render, keys);
 
 	// set up game 2
-	var render2 = new Render(canvas2);
-	var game2 = new Game(render2);
+	var numCols2: number = 15;
+	var numRows2: number = 30;
+	var keys2: Keys = new Keys(KeyControls.Default); 
+	var render2: Render = new Render(canvas2, numCols2, numRows2);
+	var game2: Game = new Game(render2, keys2);
 
 	// keyboard input
 	window.onkeydown = function(e) {
-		// game 1
-
-		//any key to start game
-		if (!game.started) {
-			game.start(); return;
-		} 
-
-		//toggle play & pause
-		if (e.keyCode == KEY.play || e.keyCode == KEY.pause) {
-			if (game.playing) game.pause();
-			else game.play();
-		} 
-
-		//only listen to keys if game is playing
-		if (game.playing) { 
-			if (e.keyCode == KEY.down) {game.move(Direction.Down);} 
-			if (e.keyCode == KEY.left) {game.move(Direction.Left);} 
-			if (e.keyCode == KEY.right) {game.move(Direction.Right);} 
-			if (e.keyCode == KEY.rotate) {game.rotate();}
-			if (e.keyCode == KEY.drop) {game.drop();}
-			if (e.keyCode == KEY.hold) {game.hold();}
-			game.keyPressed(); //anytime key is pressed
-		}
-
-		// game 2
-
-		//any key to start game
-		if (!game2.started) {
-			game2.start(); return;
-		} 
-
-		//toggle play & pause
-		if (e.keyCode == KEY.play || e.keyCode == KEY.pause) {
-			if (game2.playing) game2.pause();
-			else game2.play();
-		} 
-
-		//only listen to keys if game is playing
-		if (game2.playing) { 
-			if (e.keyCode == KEY.down) {game2.move(Direction.Down);} 
-			if (e.keyCode == KEY.left) {game2.move(Direction.Left);} 
-			if (e.keyCode == KEY.right) {game2.move(Direction.Right);} 
-			if (e.keyCode == KEY.rotate) {game2.rotate();}
-			if (e.keyCode == KEY.drop) {game2.drop();}
-			if (e.keyCode == KEY.hold) {game2.hold();}
-			game2.keyPressed(); //anytime key is pressed
-		}
-
+		gameKeyPress(game, e);
+		gameKeyPress(game2, e);
 	};
 }
 

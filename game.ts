@@ -9,10 +9,13 @@ class Game {
 	public current: Tetromino;
 	public held: Tetromino;
 	public limitHold: boolean; // limit: can't swap twice in a row
+	public numCols: number;
+	public numRows: number;
 	public grid: Grid;
 	public render: Render;
+	public keys: Keys;
 
-	public constructor(render: Render) {
+	public constructor(render: Render, keys: Keys) {
 		this.started = false;
 		this.loop = null;
 		this.playing = false;
@@ -20,8 +23,11 @@ class Game {
 		this.current;
 		this.held;
 		this.limitHold = false;
-		this.grid = new Grid();
+		this.numCols = render.numCols;
+		this.numRows = render.numRows;
+		this.grid = new Grid(this.numCols, this.numRows);
 		this.render = render;
+		this.keys = keys;
 	}
 
 	public start(): void {

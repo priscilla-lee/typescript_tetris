@@ -10,13 +10,13 @@ class Tetromino {
 
 	public constructor(shape: Shape, grid: Grid) {
 		this.shape = shape;
-		this.blocks = Tetromino.getBlocks(this.shape, this);
 		this.grid = grid;
+		this.blocks = Tetromino.getBlocks(this.shape, this, this.grid.numCols);
 		this._ghost = new Ghost(this);
 	}
 
 	public reset(): void {  //reset position
-		this.blocks = Tetromino.getBlocks(this.shape, this);
+		this.blocks = Tetromino.getBlocks(this.shape, this, this.grid.numCols);
 		this._ghost.reset(); 
 	}
 
@@ -96,9 +96,9 @@ class Tetromino {
 		return this._ghost.update();
 	}
 
-	public static getBlocks(shape: Shape, T: Tetromino): Block[] {
+	public static getBlocks(shape: Shape, T: Tetromino, numCols: number): Block[] {
 		//center, top position
-		var mid: number = Math.floor(COLS/2)-1; //integer division, truncates
+		var mid: number = Math.floor(numCols/2)-1; //integer division, truncates
 		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos
 
 		var i: number = shift;
@@ -109,16 +109,16 @@ class Tetromino {
 		var z: number = shift; 
 		var o: number = mid;
 
-		var t: number = NUM_TOP_ROWS - 1; //shifted for top rows
+		var top: number = NUM_TOP_ROWS - 1; //shifted for top rows
 
 		switch(shape) {
-			case Shape.I: return [new Block(0+t,i+1,T), new Block(0+t,i+0,T), new Block(0+t,i+2,T), new Block(0+t,i+3,T)];
-			case Shape.J: return [new Block(1+t,j+1,T), new Block(0+t,j+0,T), new Block(1+t,j+0,T), new Block(1+t,j+2,T)];
-			case Shape.L: return [new Block(1+t,l+1,T), new Block(0+t,l+2,T), new Block(1+t,l+0,T), new Block(1+t,l+2,T)];
-			case Shape.O: return [new Block(0+t,o+0,T), new Block(0+t,o+1,T), new Block(1+t,o+0,T), new Block(1+t,o+1,T)];
-			case Shape.S: return [new Block(0+t,s+1,T), new Block(0+t,s+2,T), new Block(1+t,s+0,T), new Block(1+t,s+1,T)];
-			case Shape.T: return [new Block(1+t,t+1,T), new Block(0+t,t+1,T), new Block(1+t,t+0,T), new Block(1+t,t+2,T)];
-			case Shape.Z: return [new Block(0+t,z+1,T), new Block(0+t,z+0,T), new Block(1+t,z+1,T), new Block(1+t,z+2,T)];
+			case Shape.I: return [new Block(0+top,i+1,T), new Block(0+top,i+0,T), new Block(0+top,i+2,T), new Block(0+top,i+3,T)];
+			case Shape.J: return [new Block(1+top,j+1,T), new Block(0+top,j+0,T), new Block(1+top,j+0,T), new Block(1+top,j+2,T)];
+			case Shape.L: return [new Block(1+top,l+1,T), new Block(0+top,l+2,T), new Block(1+top,l+0,T), new Block(1+top,l+2,T)];
+			case Shape.O: return [new Block(0+top,o+0,T), new Block(0+top,o+1,T), new Block(1+top,o+0,T), new Block(1+top,o+1,T)];
+			case Shape.S: return [new Block(0+top,s+1,T), new Block(0+top,s+2,T), new Block(1+top,s+0,T), new Block(1+top,s+1,T)];
+			case Shape.T: return [new Block(1+top,t+1,T), new Block(0+top,t+1,T), new Block(1+top,t+0,T), new Block(1+top,t+2,T)];
+			case Shape.Z: return [new Block(0+top,z+1,T), new Block(0+top,z+0,T), new Block(1+top,z+1,T), new Block(1+top,z+2,T)];
 			case Shape.Ghost: return [new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T), new Block(-1,-1,T)];
 		}
 	}
@@ -157,7 +157,7 @@ class Ghost {
 	}
 
 	public reset(): void { //position
-		this.blocks = Tetromino.getBlocks(Shape.Ghost, this._tetromino);
+		this.blocks = Tetromino.getBlocks(Shape.Ghost, this._tetromino, this._tetromino.grid.numCols);
 	}
 
 	public contains(r: number, c: number): boolean {
