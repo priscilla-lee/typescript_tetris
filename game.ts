@@ -2,32 +2,34 @@
 * GAME: game logic, loop, start, play, pause, etc
 ************************************************************************/
 class Game {
-	public started: boolean;
-	public loop: number;
+	private _loop: number;
+	private _randomPieces: RandomPieces;
+	private _current: Tetromino;
+	private _held: Tetromino;
+	private _limitHold: boolean; // limit: can't swap twice in a row
+	private _numCols: number;
+	private _numRows: number;
+	private _grid: Grid;
+	private _render: Render;
+	private _delay: number;
 	public playing: boolean;
-	public randomPieces: RandomPieces;
-	public current: Tetromino;
-	public held: Tetromino;
-	public limitHold: boolean; // limit: can't swap twice in a row
-	public numCols: number;
-	public numRows: number;
-	public grid: Grid;
-	public render: Render;
+	public started: boolean;
 	public keys: Keys;
 
 	public constructor(render: Render, keys: Keys) {
 		this.started = false;
-		this.loop = null;
+		this._loop = null;
 		this.playing = false;
-		this.randomPieces = new RandomPieces();
-		this.current;
-		this.held;
-		this.limitHold = false;
-		this.numCols = render.numCols;
-		this.numRows = render.numRows;
-		this.grid = new Grid(this.numCols, this.numRows);
-		this.render = render;
+		this._randomPieces = new RandomPieces();
+		this._current;
+		this._held;
+		this._limitHold = false;
+		this._numCols = render.numCols;
+		this._numRows = render.numRows;
+		this._grid = new Grid(this._numCols, this._numRows);
+		this._render = render;
 		this.keys = keys;
+		this._delay = INITIAL_DELAY;
 	}
 
 	public start(): void {
@@ -37,88 +39,92 @@ class Game {
 	}
 
 	public play(): void {
-		this.loop = setInterval(() => this.step(), DELAY);
+		this._loop = setInterval(() => this.step(), this._delay);
 		this.playing = true;
 	}
 
 	public pause(): void {
-		clearInterval(this.loop);
+		clearInterval(this._loop);
 		this.playing = false;
 	}
 
 	public step(): void {
 		//self.current.drawGhost();
-		this.render.eraseTetromino(this.current); 
-		if (!this.current.fall()) {
+		this._render.eraseTetromino(this._current); 
+		if (!this._current.fall()) {
 			this._nextPiece();	
 		}
-		this.render.drawTetromino(this.current); 
+		this._render.drawTetromino(this._current); 
 	}
 
 	private _nextPiece(): void {
-		var next: Shape = this.randomPieces.getNext();
-		this.current = new Tetromino(next, this.grid);
-		this.current.add(); 
-		this.render.drawTetromino(this.current); 
-		this.limitHold = false;
-		this.grid.collapseFullRows();
-		this.render.updateBoard(this.grid);
+		var next: Shape = this._randomPieces.getNext();
+		this._current = new Tetromino(next, this._grid);
+		this._current.add(); 
+		this._render.drawTetromino(this._current); 
+		this._limitHold = false;
+
+		// collapse rows & speed up
+		var numCollapsedRows: number = this._grid.collapseFullRows();
+		if (numCollapsedRows > 0) {
+			this._delay -= DELAY_DECREMENT * numCollapsedRows; 
+			clearInterval(this._loop);
+			this._loop = setInterval(() => this.step(), this._delay);
+			console.log(this._delay);
+		}
+
+		this._render.updateBoard(this._grid);
 		//this.current.drawGhost();
-		this.render.drawTetromino(this.current);
-		this.render.updateNext(this.randomPieces.getList());
+		this._render.drawTetromino(this._current);
+		this._render.updateNext(this._randomPieces.getList());
 	}
 
 	public move(dir: Direction): void {
-		this.render.eraseTetromino(this.current); 
-		this.current.move(dir);
-		this.render.drawTetromino(this.current); 
+		this._render.eraseTetromino(this._current); 
+		this._current.move(dir);
+		this._render.drawTetromino(this._current); 
 	}
 
 	public rotate(): void {
-		this.render.eraseTetromino(this.current);
-		this.current.rotate();
-		this.render.drawTetromino(this.current); 
+		this._render.eraseTetromino(this._current);
+		this._current.rotate();
+		this._render.drawTetromino(this._current); 
 	}
 
 	public drop(): void {
-		this.current.drop();
+		this._current.drop();
 		this._nextPiece();
 	}
 
 	public hold(): void {
 		//limit hold swaps
-		if (this.limitHold) return; 
-		else this.limitHold = true;
+		if (this._limitHold) return; 
+		else this._limitHold = true;
 
-		if (this.held) {
+		if (this._held) {
 			//remmove & erase current
-			this.current.remove(); 
-			this.render.eraseTetromino(this.current); 
+			this._current.remove(); 
+			this._render.eraseTetromino(this._current); 
 			//add & draw held
-			this.held.reset();
-			this.held.add(); 
-			this.render.drawTetromino(this.held); 
+			this._held.reset();
+			this._held.add(); 
+			this._render.drawTetromino(this._held); 
 			//swap
-			var temp: Tetromino = this.held; 
-			this.held = this.current;
-			this.current = temp;
+			var temp: Tetromino = this._held; 
+			this._held = this._current;
+			this._current = temp;
 		} else {
 			//erase current & put in hold
-			this.current.remove(); 
-			this.render.eraseTetromino(this.current); 
-			this.held = this.current;
+			this._current.remove(); 
+			this._render.eraseTetromino(this._current); 
+			this._held = this._current;
 			//draw from next list
-			var next: Shape = this.randomPieces.getNext();
-			this.current = new Tetromino(next, this.grid);
-			this.current.add(); 
-			this.render.drawTetromino(this.current); 
+			var next: Shape = this._randomPieces.getNext();
+			this._current = new Tetromino(next, this._grid);
+			this._current.add(); 
+			this._render.drawTetromino(this._current); 
 		}
-		this.render.updateHold(this.held.shape);
-	}
-
-	public keyPressed(): void {
-		//this.current.drawGhost();
-		this.render.drawTetromino(this.current); 
+		this._render.updateHold(this._held.shape);
 	}
 }
 

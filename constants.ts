@@ -1,7 +1,6 @@
-var UNIT: number = 20; //size of block on grid
-
-var DELAY = 300; //milliseconds
-
+var UNIT: number; //size of block on grid
+var DELAY_DECREMENT = 5; // to increment every collapsed row
+var INITIAL_DELAY = 300; // milliseconds
 var NUM_TOP_ROWS: number = 5; //invisible rows at top, not shown
 var NUM_NEXT_PIECES: number = 5; //must be less than 7
 

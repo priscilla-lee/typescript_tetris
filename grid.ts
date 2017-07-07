@@ -66,13 +66,16 @@ class Grid {
 		} this._clearRow(row); //clear the top row that got shifted down
 	}
 
-	public collapseFullRows(): void {
+	public collapseFullRows():  number { // return number of rows collapsed
 		var tallest: number = this._tallestDirtyRow();
+		var numCollapsedRows: number = 0;
 		for (var r = tallest; r < this.numRows + NUM_TOP_ROWS; r++) {
 			if (this._isFullRow(r)) {
 				this._collapseRow(r);
+				numCollapsedRows++;
 			}
 		}
+		return numCollapsedRows;
 	}
 
 	private _shiftRowFromTo(from: number, to: number): void {

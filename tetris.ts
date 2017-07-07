@@ -21,33 +21,38 @@ function gameKeyPress(game: Game, e: any): void {
 		if (e.keyCode == game.keys.rotate) {game.rotate();}
 		if (e.keyCode == game.keys.drop) {game.drop();}
 		if (e.keyCode == game.keys.hold) {game.hold();}
-		game.keyPressed(); //anytime key is pressed
 	}
 }
 
 /************************************************************************
 * SET UP THE GAME: create necessary game variables & draw
 ************************************************************************/
-function main(): void {
-	// set up game 1
-	var numCols: number = 10;
-	var numRows: number = 20;
-	var keys: Keys = new Keys(KeyControls.Alternative); 
+
+function startGame(canvas: any, well: any, form: any, numCols: number, numRows: number, keyControls: KeyControls): void {
+	UNIT = 20;
+	well.style.display = "block";
+	form.style.display = "none";
+	var keys: Keys = new Keys(keyControls); 
 	var render: Render = new Render(canvas, numCols, numRows);
 	var game: Game = new Game(render, keys);
+	addGameKeyListener(game);
+}
 
-	// set up game 2
-	var numCols2: number = 15;
-	var numRows2: number = 30;
-	var keys2: Keys = new Keys(KeyControls.Default); 
-	var render2: Render = new Render(canvas2, numCols2, numRows2);
-	var game2: Game = new Game(render2, keys2);
+// start with empty function
+window.onkeydown = function(e) {};
 
-	// keyboard input
+function addGameKeyListener(game: Game): void {
+	var oldKeyDown = window.onkeydown;
 	window.onkeydown = function(e) {
+		oldKeyDown(e);
 		gameKeyPress(game, e);
-		gameKeyPress(game2, e);
 	};
 }
 
-main();
+play1.onclick = function(e) {
+	startGame(canvas1, well1, form1, parseInt(cols1.value), parseInt(rows1.value), KeyControls.Default);
+}
+
+play2.onclick = function(e) {
+	startGame(canvas2, well2, form2, parseInt(cols2.value), parseInt(rows2.value), KeyControls.Default);
+}

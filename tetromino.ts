@@ -30,7 +30,7 @@ class Tetromino {
 		} return false;
 	}
 
-	public canMove(dir: Direction): boolean {
+	private _canMove(dir: Direction): boolean {
 		for (var i in this.blocks) {
 			if (!this.blocks[i].canMove(dir)) {
 				return false;
@@ -39,7 +39,7 @@ class Tetromino {
 	}
 
 	public move(dir: Direction): void {
-		if (this.canMove(dir)) {
+		if (this._canMove(dir)) {
 			this.remove();  
 			for (var i in this.blocks) {
 				this.blocks[i].move(dir);
@@ -48,7 +48,7 @@ class Tetromino {
 		}
 	}
 
-	public canRotate(): boolean {
+	private _canRotate(): boolean {
 		for (var b in this.blocks) {
 			if (!this.blocks[b].canRotate()) {
 				return false;
@@ -57,7 +57,7 @@ class Tetromino {
 	}
 
 	public rotate(): void {
-		if (this.canRotate()) {
+		if (this._canRotate()) {
 			this.remove(); 
 			for (var b in this.blocks) {
 				this.blocks[b].rotate();
@@ -81,7 +81,7 @@ class Tetromino {
 	}
 
 	public fall(): boolean {
-		if (this.canMove(Direction.Down)) {
+		if (this._canMove(Direction.Down)) {
 			this.move(Direction.Down);
 			return true;
 		}
