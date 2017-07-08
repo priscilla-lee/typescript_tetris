@@ -56,6 +56,18 @@ class BezelDimension {
 	public height: number;
 	public width: number;
 
+	public static preview(): BezelDimension {
+		var bezel: BezelDimension = new BezelDimension();
+		bezel.x = 0;
+		bezel.y = 0;
+		bezel.outer = UNIT/5;
+		bezel.mid = UNIT/3;
+		bezel.inner = 0;
+		bezel.ctn = 0;
+		bezel.thickness = bezel.outer + bezel.mid + bezel.inner + bezel.ctn;
+		return bezel;
+	}
+
 	public static next(numCols: number): BezelDimension {
 		var bezel: BezelDimension = new BezelDimension();
 		bezel.x = UNIT*(6+numCols);

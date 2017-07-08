@@ -4,23 +4,26 @@ class Render {
 	private _next: Next;
 	private _hold: Hold;
 	private _canvas: Canvas;
+	private _preview: Preview;
 	public numCols: number;
 	public numRows: number;
 
 	public constructor(canvas: any, numCols: number, numRows: number) {
 		this.numCols = numCols;
 		this.numRows = numRows; 
+		this._element = canvas;
+	}
 
+	public drawInitialFrame(): void {
 		// set up components
-		this._board = new Board(numCols, numRows);
-		this._next = new Next(numCols);
+		this._board = new Board(this.numCols, this.numRows);
+		this._next = new Next(this.numCols);
 		this._hold = new Hold();
 		this._canvas = new Canvas(this._board, this._next, this._hold);
 
 		// set up canvas
-		this._element = canvas;
-		canvas.height = this._canvas.height(); 
-		canvas.width = this._canvas.width(); 
+		this._element.height = this._canvas.height(); 
+		this._element.width = this._canvas.width(); 
 
 		// draw empty frame
 		this._drawBezel(this._board.bezel());
@@ -31,6 +34,15 @@ class Render {
 		this._clearBoard();
 		this._clearNext();
 		this._clearHold();
+	}
+
+	public drawStylePreview(shape: Shape): void {
+		this._preview = new Preview();
+		this._element.height = this._preview.bezel().height;
+		this._element.width = this._preview.bezel().width;
+
+		this._drawBezel(this._preview.bezel());
+		this.updatePreview(shape);
 	}
 
 	private _clearBoard(): void {
@@ -69,6 +81,10 @@ class Render {
 
 	public updateHold(shape: Shape): void {
 		this._drawContainer(this._hold.container(), this._hold.block(), shape); 
+	}
+
+	public updatePreview(shape: Shape): void {
+		this._drawContainer(this._preview.container(), this._preview.block(), shape); 
 	}
 
 	public drawTetromino(tetromino: Tetromino): void {
@@ -119,7 +135,7 @@ class Render {
 		var x: number = col*block.size + gridX;
 		var y: number = row*block.size + gridY - NUM_TOP_ROWS*block.size; // subtract top rows
 
-		BlockStyle.original(this._element, block, x, y, shape);
+		this._drawSquare(block, x, y, shape);
 	}
 
 	private _drawBezel(bezelDim: BezelDimension): void {
@@ -158,9 +174,40 @@ class Render {
 		if (shape != Shape.Empty) {
 			var coords = ContainerDraw._getCoordinates(shape, contDim, blockDim);
 			for (var i in coords) {
-				BlockStyle.original(this._element, blockDim, coords[i].X, coords[i].Y, shape);
+				this._drawSquare(blockDim, coords[i].X, coords[i].Y, shape);
 			}
 		}
+	}
+
+	private _drawSquare(blockDim: BlockDimension, x: number, y: number, shape: Shape): void {
+		if (IMAGES.get(shape) == undefined) {
+			this._drawDefaultSquare(blockDim, x, y, shape);
+		} else {
+			this._drawImageSquare(blockDim, x, y, shape);
+		}
+	}
+
+	private _drawDefaultSquare(blockDim: BlockDimension, x: number, y: number, shape: Shape): void {
+		var size: number = blockDim.size;
+		var weight: number = blockDim.weight;
+
+		var otln: string = getColor(shape).outline;
+		var fill: string = getColor(shape).fill;
+		var shd: string = getColor(shape).shade;
+		var hlgt: string = getColor(shape).highlight;
+		var twkl: string = getColor(shape).twinkle;
+		
+		CanvasUtil.rect(this._element, x, y, size, size, 0, otln, otln); //outline
+		CanvasUtil.rect(this._element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, 0, fill, fill); //outer rectangle
+		CanvasUtil.rect(this._element, x+(size*0.25), y+(size*0.25), size*0.5, size*0.5, weight, shd, hlgt); //inner rectangle
+		CanvasUtil.rect(this._element, x+(size*0.1), y+(size*0.1), size*0.1, size*0.1, 0, twkl, twkl); //twinkle
+	}
+
+	private _drawImageSquare(blockDim: BlockDimension, x: number, y: number, shape: Shape): void {
+		var size: number = blockDim.size;
+		var image = IMAGES.get(shape);
+		var ctx = this._element.getContext("2d");
+			ctx.drawImage(image, x, y, size, size);
 	}
 }
 

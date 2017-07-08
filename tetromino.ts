@@ -99,14 +99,13 @@ class Tetromino {
 	public static getBlocks(shape: Shape, T: Tetromino, numCols: number): Block[] {
 		//center, top position
 		var mid: number = Math.floor(numCols/2)-1; //integer division, truncates
-		var shift: number = mid-1; //shifted for 4-wide or 3-wide tetrominos
-
-		var i: number = shift;
-		var j: number = shift; 
-		var l: number = shift; 
-		var s: number = shift; 
-		var t: number = shift; 
-		var z: number = shift; 
+		
+		var i: number = mid-1; //shifted because 4-wide long
+		var j: number = mid; 
+		var l: number = mid; 
+		var s: number = mid; 
+		var t: number = mid; 
+		var z: number = mid; 
 		var o: number = mid;
 
 		var top: number = NUM_TOP_ROWS - 1; //shifted for top rows

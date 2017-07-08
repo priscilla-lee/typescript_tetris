@@ -12,6 +12,7 @@
         "dimensions.ts",
         "components.ts",
         "render.ts",
+        "image_buttons.ts",
         "tetris.ts"
     ]
 }

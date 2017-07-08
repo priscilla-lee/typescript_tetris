@@ -1,3 +1,40 @@
+class Preview {
+	private _bezel: BezelDimension;
+	private _container: ContainerDimension;
+	private _block: BlockDimension;
+
+	public constructor() {
+		var bezel = BezelDimension.preview();
+		var container = ContainerDimension.small();
+		var block = BlockDimension.small();
+
+		// set bezel height & width
+		bezel.height = container.box + 2*bezel.thickness;
+		bezel.width = container.box + 2*bezel.thickness;
+
+		// set medium container x & y
+		container.x = bezel.thickness + bezel.x;
+		container.y = bezel.thickness + bezel.y;
+
+		// store dimensions
+		this._bezel = bezel;
+		this._container = container;
+		this._block = block;
+	}
+
+	public bezel(): BezelDimension {
+		return this._bezel;
+	}
+
+	public container(): ContainerDimension {
+		return this._container;
+	}
+
+	public block (): BlockDimension { 
+		return this._block;
+	}
+}
+
 class Hold {
 	private _bezel: BezelDimension;
 	private _container: ContainerDimension;

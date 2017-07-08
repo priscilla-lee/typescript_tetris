@@ -64,13 +64,12 @@ class Game {
 		this._render.drawTetromino(this._current); 
 		this._limitHold = false;
 
-		// collapse rows & speed up
+		// collapse rows & speed up, based on number of rows collapsed
 		var numCollapsedRows: number = this._grid.collapseFullRows();
 		if (numCollapsedRows > 0) {
 			this._delay -= DELAY_DECREMENT * numCollapsedRows; 
 			clearInterval(this._loop);
 			this._loop = setInterval(() => this.step(), this._delay);
-			console.log(this._delay);
 		}
 
 		this._render.updateBoard(this._grid);

@@ -1,6 +1,9 @@
 /************************************************************************
 * KEYBOARD INPUT: onkeydown
 ************************************************************************/
+// start with empty function
+window.onkeydown = function(e) {};
+
 function gameKeyPress(game: Game, e: any): void {
 	//any key to start game
 	if (!game.started) {
@@ -28,18 +31,14 @@ function gameKeyPress(game: Game, e: any): void {
 * SET UP THE GAME: create necessary game variables & draw
 ************************************************************************/
 
-function startGame(canvas: any, well: any, form: any, numCols: number, numRows: number, keyControls: KeyControls): void {
-	UNIT = 20;
-	well.style.display = "block";
-	form.style.display = "none";
+function startGame(canvas: any, numCols: number, numRows: number, keyControls: KeyControls): void {
 	var keys: Keys = new Keys(keyControls); 
 	var render: Render = new Render(canvas, numCols, numRows);
+		render.drawInitialFrame();
 	var game: Game = new Game(render, keys);
 	addGameKeyListener(game);
 }
 
-// start with empty function
-window.onkeydown = function(e) {};
 
 function addGameKeyListener(game: Game): void {
 	var oldKeyDown = window.onkeydown;
@@ -50,9 +49,7 @@ function addGameKeyListener(game: Game): void {
 }
 
 play1.onclick = function(e) {
-	startGame(canvas1, well1, form1, parseInt(cols1.value), parseInt(rows1.value), KeyControls.Default);
-}
-
-play2.onclick = function(e) {
-	startGame(canvas2, well2, form2, parseInt(cols2.value), parseInt(rows2.value), KeyControls.Default);
+	well1.style.display = "block";
+	form1.style.display = "none";
+	startGame(canvas1, parseInt(cols1.value), parseInt(rows1.value), KeyControls.Default);
 }

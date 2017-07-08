@@ -58,27 +58,3 @@ function getColor(shape: Shape): Color {
 // 	".": {outline: "black", fill: "#2A2A2A", shade: "#2A2A2A", highlight: "#2A2A2A"},
 // 	"ghost": {outline: "black", fill: "white", shade: "white", highlight: "white"},
 // };
-
-
-class BlockStyle {
-	public static original = function(element: any, blockDim: BlockDimension, x: number, y: number, shape: Shape): void {
-		var size: number = blockDim.size;
-		var weight: number = blockDim.weight;
-
-		var otln: string = getColor(shape).outline;
-		var fill: string = getColor(shape).fill;
-		var shd: string = getColor(shape).shade;
-		var hlgt: string = getColor(shape).highlight;
-		var twkl: string = getColor(shape).twinkle;
-		
-		CanvasUtil.rect(element, x, y, size, size, 0, otln, otln); //outline
-		CanvasUtil.rect(element, x+(size*0.05), y+(size*0.05), size*0.9, size*0.9, 0, fill, fill); //outer rectangle
-		CanvasUtil.rect(element, x+(size*0.25), y+(size*0.25), size*0.5, size*0.5, weight, shd, hlgt); //inner rectangle
-		CanvasUtil.rect(element, x+(size*0.1), y+(size*0.1), size*0.1, size*0.1, 0, twkl, twkl); //twinkle
-	}
-	
-	public static image = function(element: any, img: string, x: number, y: number, w: number, h: number): void {
-	    var ctx = element.getContext("2d");
-	   		ctx.drawImage(img, x, y, w, h);
-	}
-}
